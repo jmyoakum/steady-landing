@@ -5,7 +5,16 @@ import { useEffect, useState } from "react";
 type Status = "idle" | "loading" | "success" | "error";
 
 /* ---------- Email capture (wired to Kit via /api/subscribe) ---------- */
-function WaitlistForm({ cta, id }: { cta: string; id?: string }) {
+function WaitlistForm({
+  cta,
+  id,
+  tone = "light",
+}: {
+  cta: string;
+  id?: string;
+  tone?: "light" | "dark";
+}) {
+  const dark = tone === "dark";
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -38,7 +47,7 @@ function WaitlistForm({ cta, id }: { cta: string; id?: string }) {
   if (status === "success") {
     return (
       <p
-        className="font-hand text-2xl text-clayDeep"
+        className={`font-hand text-2xl ${dark ? "text-gold" : "text-clayDeep"}`}
         role="status"
         aria-live="polite"
       >
@@ -63,13 +72,19 @@ function WaitlistForm({ cta, id }: { cta: string; id?: string }) {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="whitespace-nowrap rounded-full bg-ink px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:bg-clayDeep hover:shadow-md active:translate-y-px disabled:opacity-60"
+          className={`whitespace-nowrap rounded-full px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:shadow-md active:translate-y-px disabled:opacity-60 ${
+            dark ? "bg-clay hover:bg-coral" : "bg-ink hover:bg-clayDeep"
+          }`}
         >
           {status === "loading" ? "…" : cta}
         </button>
       </div>
       {message && status === "error" ? (
-        <p className="mt-2 font-hand text-xl text-clayDeep" role="status" aria-live="polite">
+        <p
+          className={`mt-2 font-hand text-xl ${dark ? "text-coral" : "text-clayDeep"}`}
+          role="status"
+          aria-live="polite"
+        >
           {message}
         </p>
       ) : null}
@@ -400,7 +415,7 @@ export default function Home() {
             the first in — no pressure, no noise.
           </p>
           <div className="mx-auto mt-7 max-w-md">
-            <WaitlistForm cta="Join the Waitlist" />
+            <WaitlistForm cta="Join the Waitlist" tone="dark" />
             <p className="mt-2.5 text-sm text-cream/60">
               We&apos;ll only email you about the Steady beta. Unsubscribe
               anytime.
