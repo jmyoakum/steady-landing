@@ -127,43 +127,74 @@ export default function Home() {
       <section className="px-6 py-10">
         <div className="mx-auto w-full max-w-read">
           <p className="dropcap mb-6">
-            You know the feeling. The conversation that flowed for days, then
-            went quiet for no reason you can name. The plans that get softer the
-            closer they get. The sense that you&apos;re somehow always the one
-            reaching — and that reaching is starting to cost you.
+            The hardest relationships aren&apos;t always the ones that end.
+            Sometimes they&apos;re the ones that never fully begin — the ones
+            built out of almosts.
           </p>
+
+          <p className="my-8 text-center font-display text-2xl italic text-clayDeep">
+            Almost together. Almost certain. Almost clear.
+          </p>
+
           <p className="mb-6">
-            It isn&apos;t that you&apos;re too much. And it usually isn&apos;t
-            that they don&apos;t care. Avoidance has its own grammar: closeness,
-            then distance; warmth, then a wall. Once you can read it, the mixed
-            signals stop feeling like a verdict on you.
+            Enough connection to keep you all in. Enough distance to keep you
+            questioning everything. So you start overthinking. You reread the
+            texts. You replay the conversations. You swear you&apos;re done
+            checking your phone — then check it anyway, hunting for meaning in
+            every delay, every dry reply, every little sign.
           </p>
+
+          <p className="mb-6">
+            Not because you&apos;re obsessive. Because you&apos;re trying to make
+            sense of something that refuses to make sense.
+          </p>
+
           <p className="my-10 border-l-2 border-clay pl-6 font-display text-2xl font-normal italic leading-snug text-ink">
-            Steady isn&apos;t here to fix them. It&apos;s here so you can stay
-            yourself while you figure out what you actually want.
+            Somewhere in the middle of it, you catch yourself spending more time
+            trying to understand the relationship than actually being in it.
           </p>
+
           <p className="mb-6">
-            That&apos;s the whole idea. Not advice that sounds like a clinic. Not
-            vibes that go nowhere. Something in between — clear, honest, and on
-            your side.
+            Here&apos;s the part nobody tells you: avoidant behavior runs on
+            patterns. Once you can spot them, the confusion starts to click. The
+            mixed signals stop feeling random. The push and pull becomes
+            something you can see coming.
+          </p>
+
+          <p className="my-10 border-l-2 border-clay pl-6 font-display text-2xl font-normal italic leading-snug text-ink">
+            And once you can see the pattern, you get to decide how to handle it
+            — instead of getting pulled back into it.
+          </p>
+
+          <p className="mb-6">
+            Steady isn&apos;t here to tell you what they&apos;re thinking.
+            It&apos;s here to help you spot the pattern, understand your own
+            reactions, and make the call before the cycle makes it for you.
+          </p>
+
+          <p className="mb-1 font-display text-xl italic text-inkSoft">
+            No mind-reading. No relationship hacks. No false hope.
+          </p>
+          <p className="mb-2 font-display text-2xl italic text-clayDeep">
+            Just clarity when everything else feels like a guessing game.
           </p>
 
           <div className="my-10">
             {[
               {
                 n: "01",
-                t: "Name the pattern",
-                d: "Put language to the push and pull, the silence, the breadcrumbs — so it stops living rent-free in your head.",
+                t: "Spot the pattern",
+                d: "Put words to the push-pull, the breadcrumbs, the slow fade — so it stops living rent-free in your head.",
               },
               {
                 n: "02",
-                t: "Read the moment",
-                d: "Understand what's likely happening underneath hot-and-cold behavior, situationships, and the slow fade.",
+                t: "Understand your reactions",
+                d: "See why you reread, replay, and refresh — and what's quietly pulling you back in each time.",
               },
               {
                 n: "03",
-                t: "Keep your footing",
-                d: "Steady, grounded next steps that protect your sense of self — whether you stay, leave, or just need to breathe.",
+                t: "Decide before the cycle does",
+                d: "Make the call that's yours — stay, walk, or just breathe — instead of letting the pattern choose for you.",
               },
             ].map((item) => (
               <div
