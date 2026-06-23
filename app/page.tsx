@@ -181,75 +181,72 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="px-5 pb-10 pt-12 sm:pt-16">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-12">
-          {/* copy */}
-          <div data-reveal>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-clay">
-              Understand the pattern · Break the cycle · Make better decisions
-            </p>
-            <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-              When someone keeps pulling away, you don&apos;t have to{" "}
-              <span className="text-clayDeep">disappear</span> with them.
-            </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-inkSoft">
-              Steady helps you understand avoidant relationship behavior and
-              navigate the patterns so you don&apos;t lose yourself in the
-              process.
-            </p>
+      <section className="px-5 pb-12 pt-12 sm:pt-16">
+        <div data-reveal className="mx-auto max-w-2xl">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-clay">
+            Understand the pattern · Break the cycle · Make better decisions
+          </p>
+          <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+            When someone keeps pulling away, you don&apos;t have to{" "}
+            <span className="text-clayDeep">disappear</span> with them.
+          </h1>
 
-            <div className="mt-7 max-w-md">
-              <WaitlistForm cta="Join the Waitlist" />
-              <p className="mt-2.5 text-sm text-inkFaint">
-                Early access, no spam, leave whenever.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
-              <TrustItem color="bg-lavender/20" label="No mind-reading">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 1 5 3 3 0 0 0 3 3M15 4a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-1 5 3 3 0 0 1-3 3M12 4v16" stroke="#6F62B8" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-              </TrustItem>
-              <TrustItem color="bg-coral/20" label="No relationship hacks">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z" stroke="#C96A57" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M11 7l-2 4h3l-2 4" stroke="#C96A57" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </TrustItem>
-              <TrustItem color="bg-gold/25" label="No false hope">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" stroke="#B07F1E" strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-              </TrustItem>
-            </div>
-
-            <p className="mt-5 font-hand text-2xl text-lavender">
-              Recognize the pattern. Choose what happens next.
-            </p>
-          </div>
-
-          {/* hero art */}
-          <div data-reveal className="relative">
-            <div className="floaty-slow absolute -left-2 top-4 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
+          {/* Door hero image — they care, but don't know how to open the door */}
+          <div className="relative mt-8">
+            <div className="floaty-slow absolute -left-1 -top-3 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
               Should I text? Wait? Move on?
             </div>
-            <div className="floaty absolute -right-1 bottom-6 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
+            <div className="floaty absolute -right-1 bottom-4 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
               Why do I keep getting pulled back in?
             </div>
             <div className="group overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5">
               <img
-                src="/img/hero.jpg"
-                alt="Two people at dusk, looking away from each other"
+                src="/img/hero-door.jpg"
+                alt="A boy and a girl on either side of a closed door, hands gently pressed to it"
                 loading="eager"
-                className="w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
+                className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
               />
             </div>
           </div>
+
+          <p className="mt-8 text-lg leading-relaxed text-inkSoft">
+            Steady helps you understand avoidant relationship behavior and
+            navigate the patterns so you don&apos;t lose yourself in the process.
+          </p>
+
+          <div className="mt-6 max-w-md">
+            <WaitlistForm cta="Join the Waitlist" />
+            <p className="mt-2.5 text-sm text-inkFaint">
+              Early access, no spam, leave whenever.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
+            <TrustItem color="bg-lavender/20" label="No mind-reading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 1 5 3 3 0 0 0 3 3M15 4a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-1 5 3 3 0 0 1-3 3M12 4v16" stroke="#6F62B8" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </TrustItem>
+            <TrustItem color="bg-coral/20" label="No relationship hacks">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z" stroke="#C96A57" strokeWidth="1.6" strokeLinejoin="round" />
+                <path d="M11 7l-2 4h3l-2 4" stroke="#C96A57" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </TrustItem>
+            <TrustItem color="bg-gold/25" label="No false hope">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" stroke="#B07F1E" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
+            </TrustItem>
+          </div>
+
+          <p className="mt-5 font-hand text-2xl text-lavender">
+            Recognize the pattern. Choose what happens next.
+          </p>
         </div>
       </section>
 
-      {/* Narrative body */}
+            {/* Narrative body */}
       <section className="px-5 py-14">
         <div className="mx-auto max-w-read">
           <div data-reveal className="space-y-4 text-lg leading-relaxed text-inkSoft">
@@ -368,9 +365,13 @@ export default function Home() {
       {/* Closing quote */}
       <section className="px-5 py-16">
         <div data-reveal className="mx-auto max-w-read text-center">
-          <div className="mb-5 flex justify-center -space-x-3">
-            <span className="h-12 w-12 rounded-full border-2 border-cream bg-lavender/40" aria-hidden="true" />
-            <span className="h-12 w-12 rounded-full border-2 border-cream bg-coral/40" aria-hidden="true" />
+          <div className="mx-auto mb-7 max-w-md overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
+            <img
+              src="/img/hero.jpg"
+              alt="Two people at dusk, finally seeing clearly"
+              loading="lazy"
+              className="h-auto w-full"
+            />
           </div>
           <p className="text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]">
             <span className="font-hand text-4xl text-clay">“</span>Steady
