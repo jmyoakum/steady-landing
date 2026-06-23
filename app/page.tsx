@@ -274,11 +274,20 @@ export default function Home() {
             <div className="floaty absolute -right-1 top-24 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
               Why do I keep getting pulled back in?
             </div>
-            <Slot
-              src="/img/hero.png"
-              alt="Hero scene — two people back to back, phones, thought bubbles"
-              ratio="4 / 5"
-            />
+            <div className="relative pb-[14%]">
+              <img
+                src="/img/hero-girl.jpg"
+                alt="Someone in bed, phone in hand, lost in thought"
+                loading="eager"
+                className="w-[80%] rounded-[1.5rem] shadow-xl ring-1 ring-black/5"
+              />
+              <img
+                src="/img/hero-guy.jpg"
+                alt="Someone at a desk, replaying the conversation"
+                loading="eager"
+                className="absolute bottom-0 right-0 w-[58%] rotate-3 rounded-[1.25rem] border-4 border-cream shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
