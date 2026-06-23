@@ -21,7 +21,8 @@ function WaitlistForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const value = email.trim();
+    if (status === "loading" || status === "success") return;
+    const value = email.trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
       setStatus("error");
       setMessage("That email looks off — mind checking it?");
