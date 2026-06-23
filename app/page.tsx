@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Status = "idle" | "loading" | "success" | "error";
 
-function SignupForm({ cta }: { cta: string }) {
+/* ---------- Email capture (wired to Kit via /api/subscribe) ---------- */
+function WaitlistForm({ cta, id }: { cta: string; id?: string }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -36,15 +37,19 @@ function SignupForm({ cta }: { cta: string }) {
 
   if (status === "success") {
     return (
-      <p className="font-display italic text-xl text-clayDeep py-2" role="status">
+      <p
+        className="font-hand text-2xl text-clayDeep"
+        role="status"
+        aria-live="polite"
+      >
         {message}
       </p>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 sm:flex-row">
+    <form id={id} onSubmit={onSubmit} noValidate className="w-full">
+      <div className="flex flex-col gap-2.5 sm:flex-row">
         <input
           type="email"
           inputMode="email"
@@ -53,18 +58,18 @@ function SignupForm({ cta }: { cta: string }) {
           placeholder="your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="min-w-0 flex-1 rounded-sm border border-line bg-paper px-4 py-3.5 font-body text-lg text-ink placeholder:text-inkFaint outline-none transition-colors focus:border-clay"
+          className="min-w-0 flex-1 rounded-full border border-line bg-cream px-5 py-3.5 text-base text-ink shadow-sm outline-none transition-colors placeholder:text-inkFaint focus:border-clay"
         />
         <button
           type="submit"
           disabled={status === "loading"}
-          className="whitespace-nowrap rounded-sm bg-ink px-7 py-3.5 font-display font-medium tracking-wide text-paper transition-colors hover:bg-clayDeep active:translate-y-px disabled:opacity-60"
+          className="whitespace-nowrap rounded-full bg-ink px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:bg-clayDeep hover:shadow-md active:translate-y-px disabled:opacity-60"
         >
           {status === "loading" ? "…" : cta}
         </button>
       </div>
       {message && status === "error" ? (
-        <p className="font-display italic text-clayDeep" role="status" aria-live="polite">
+        <p className="mt-2 font-hand text-xl text-clayDeep" role="status" aria-live="polite">
           {message}
         </p>
       ) : null}
@@ -72,175 +77,348 @@ function SignupForm({ cta }: { cta: string }) {
   );
 }
 
+/* ---------- Image slot: shows your art when present, a tidy placeholder until then ---------- */
+function Slot({
+  src,
+  alt,
+  className,
+  ratio,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  ratio?: string;
+}) {
+  const [ok, setOk] = useState(true);
+  return (
+    <div className={`slot ${className ?? ""}`} style={{ aspectRatio: ratio ?? "4 / 5" }}>
+      {ok ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="slot-img"
+          onError={() => setOk(false)}
+        />
+      ) : (
+        <div className="slot-ph">
+          <span className="text-2xl text-clay" aria-hidden="true">✦</span>
+          <span className="text-sm font-medium">{alt}</span>
+          <code>{src}</code>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TrustItem({
+  color,
+  label,
+  children,
+}: {
+  color: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${color}`}
+        aria-hidden="true"
+      >
+        {children}
+      </span>
+      <span className="text-base font-semibold text-ink">{label}</span>
+    </div>
+  );
+}
+
 export default function Home() {
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll("[data-reveal]"));
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      els.forEach((el) => el.classList.add("in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            en.target.classList.add("in");
+            io.unobserve(en.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  const steps = [
+    {
+      n: "01",
+      t: "See the pattern",
+      d: "Recognize the push and pull, the distance, the breadcrumbs, and the mixed signals before they pull you back into the same cycle.",
+      img: "/img/step-01.png",
+      tint: "from-lavender/15",
+    },
+    {
+      n: "02",
+      t: "Understand what's happening",
+      d: "Make sense of hot and cold behavior, situationships, mixed signals, and emotional distance without guessing what they mean.",
+      img: "/img/step-02.png",
+      tint: "from-coral/15",
+    },
+    {
+      n: "03",
+      t: "Choose your next move",
+      d: "Decide how to respond before confusion, hope, and emotion start making decisions for you.",
+      img: "/img/step-03.png",
+      tint: "from-gold/15",
+    },
+  ];
+
   return (
     <div className="relative z-[2]">
-      {/* Header */}
-      <header className="pt-10">
-        <div className="mx-auto w-full max-w-read px-6">
-          <div className="font-display text-xl font-medium uppercase tracking-[0.16em]">
-            Steady<span className="text-clay">.</span>
+      {/* Sticky header */}
+      <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/85 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-cream">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 14 C 7 8, 9 8, 12 12 S 17 16, 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className="text-lg font-extrabold tracking-tight">Steady</span>
           </div>
+          <a
+            href="#join"
+            className="rounded-full bg-ink px-4 py-2 text-sm font-bold text-cream transition-colors hover:bg-clayDeep"
+          >
+            Join Waitlist
+          </a>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="px-6 pb-16 pt-20 sm:pt-24">
-        <div className="mx-auto w-full max-w-read">
-          <p className="mb-6 font-display text-base italic text-clayDeep">
-            Field notes for the hot &amp; cold
-          </p>
-          <h1 className="mb-7 font-display text-[2.7rem] font-normal leading-[1.04] tracking-tight sm:text-[3.6rem] lg:text-[4.2rem]">
-            When someone keeps pulling away, you don&apos;t have to{" "}
-            <em className="italic text-clayDeep">disappear</em> with them.
-          </h1>
-          <p className="mb-10 max-w-[32rem] text-xl leading-relaxed text-inkSoft">
-            Steady helps you understand avoidant relationship behavior and
-            navigate the patterns — so you don&apos;t lose yourself in the
-            process.
-          </p>
-          <SignupForm cta="Join the beta" />
-          <p className="mt-3 text-sm leading-relaxed text-inkFaint">
-            Early access, no spam, leave whenever. We&apos;ll only write when
-            there&apos;s something worth saying.
-          </p>
+      <section className="px-5 pb-10 pt-12 sm:pt-16">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-12">
+          {/* copy */}
+          <div data-reveal>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-clay">
+              Understand the pattern · Break the cycle · Make better decisions
+            </p>
+            <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+              When someone keeps pulling away, you don&apos;t have to{" "}
+              <span className="text-clayDeep">disappear</span> with them.
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-inkSoft">
+              Steady helps you understand avoidant relationship behavior and
+              navigate the patterns so you don&apos;t lose yourself in the
+              process.
+            </p>
+
+            <div className="mt-7 max-w-md">
+              <WaitlistForm cta="Join the Waitlist" />
+              <p className="mt-2.5 text-sm text-inkFaint">
+                Early access, no spam, leave whenever.
+              </p>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
+              <TrustItem color="bg-lavender/20" label="No mind-reading">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 1 5 3 3 0 0 0 3 3M15 4a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-1 5 3 3 0 0 1-3 3M12 4v16" stroke="#6F62B8" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </TrustItem>
+              <TrustItem color="bg-coral/20" label="No relationship hacks">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z" stroke="#C96A57" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="M11 7l-2 4h3l-2 4" stroke="#C96A57" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </TrustItem>
+              <TrustItem color="bg-gold/25" label="No false hope">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" stroke="#B07F1E" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              </TrustItem>
+            </div>
+
+            <p className="mt-5 font-hand text-2xl text-lavender">
+              Just clarity when things feel confusing.
+            </p>
+          </div>
+
+          {/* hero art */}
+          <div data-reveal className="relative">
+            <div className="floaty-slow absolute -left-2 top-4 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
+              Should I text? Wait? Move on?
+            </div>
+            <div className="floaty absolute -right-1 top-24 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
+              Why do I keep getting pulled back in?
+            </div>
+            <Slot
+              src="/img/hero.png"
+              alt="Hero scene — two people back to back, phones, thought bubbles"
+              ratio="4 / 5"
+            />
+          </div>
         </div>
       </section>
 
-      {/* Atmosphere */}
-      <div className="px-6">
-        <svg
-          className="mx-auto block w-full max-w-3xl opacity-90"
-          viewBox="0 0 800 200"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path d="M0 120 C 120 80, 200 80, 320 120 S 540 160, 660 120 S 760 90, 800 110" stroke="#A8694C" strokeOpacity="0.55" strokeWidth="1.4" />
-          <path d="M0 140 C 140 110, 220 110, 340 140 S 560 172, 680 140 S 770 118, 800 132" stroke="#8B9A86" strokeOpacity="0.5" strokeWidth="1.2" />
-          <path d="M0 100 C 120 70, 210 70, 330 100 S 540 132, 660 100 S 765 80, 800 96" stroke="#211C17" strokeOpacity="0.18" strokeWidth="1" />
-          <circle cx="400" cy="118" r="3.2" fill="#A8694C" />
-        </svg>
-      </div>
+      {/* Narrative body */}
+      <section className="px-5 py-14">
+        <div className="mx-auto max-w-read">
+          <div data-reveal className="space-y-4 text-lg leading-relaxed text-inkSoft">
+            <p className="text-2xl font-semibold leading-snug text-ink">
+              The hardest relationships aren&apos;t always the ones that end.
+              Sometimes they&apos;re the ones that never fully begin. The ones
+              filled with almosts.
+            </p>
+          </div>
 
-      {/* Essay */}
-      <section className="px-6 py-10">
-        <div className="mx-auto w-full max-w-read">
-          <p className="dropcap mb-6">
-            The hardest relationships aren&apos;t always the ones that end.
-            Sometimes they&apos;re the ones that never fully begin — the ones
-            built out of almosts.
-          </p>
-
-          <p className="my-8 text-center font-display text-2xl italic text-clayDeep">
+          <p data-reveal className="my-9 text-center font-hand text-3xl text-clayDeep">
             Almost together. Almost certain. Almost clear.
           </p>
 
-          <p className="mb-6">
-            Enough connection to keep you all in. Enough distance to keep you
-            questioning everything. So you start overthinking. You reread the
-            texts. You replay the conversations. You swear you&apos;re done
-            checking your phone — then check it anyway, hunting for meaning in
-            every delay, every dry reply, every little sign.
-          </p>
+          <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
+            <p>
+              Enough connection to keep you invested… enough distance to keep
+              you questioning everything. So you start thinking again. You reread
+              the messages. You replay the conversations. You tell yourself
+              you&apos;re done checking your phone… then check it anyway. You
+              search for meaning in every text, every delay, every tiny sign.
+            </p>
+            <p>
+              Not because you&apos;re obsessed. Because you&apos;re trying to
+              make sense of something that doesn&apos;t make sense.
+            </p>
+          </div>
 
-          <p className="mb-6">
-            Not because you&apos;re obsessive. Because you&apos;re trying to make
-            sense of something that refuses to make sense.
-          </p>
+          <blockquote
+            data-reveal
+            className="my-10 border-l-[3px] border-clay pl-5 text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]"
+          >
+            And somewhere in the middle of all that… you realize you&apos;re
+            spending more time trying to understand the relationship than
+            actually experiencing it.
+          </blockquote>
 
-          <p className="my-10 border-l-2 border-clay pl-6 font-display text-2xl font-normal italic leading-snug text-ink">
-            Somewhere in the middle of it, you catch yourself spending more time
-            trying to understand the relationship than actually being in it.
-          </p>
+          <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
+            <p>
+              Avoidant behavior follows patterns. Once you can recognize those
+              patterns, the confusion starts to make sense. The mixed signals
+              stop feeling random. The push and pull becomes predictable.
+            </p>
+          </div>
 
-          <p className="mb-6">
-            Here&apos;s the part nobody tells you: avoidant behavior runs on
-            patterns. Once you can spot them, the confusion starts to click. The
-            mixed signals stop feeling random. The push and pull becomes
-            something you can see coming.
-          </p>
+          <blockquote
+            data-reveal
+            className="my-10 rounded-2xl bg-paperDeep px-6 py-7 text-2xl font-bold leading-snug text-ink sm:text-[1.7rem]"
+          >
+            And when you can see the pattern… you can decide how to navigate it
+            instead of getting pulled back into it.
+          </blockquote>
 
-          <p className="my-10 border-l-2 border-clay pl-6 font-display text-2xl font-normal italic leading-snug text-ink">
-            And once you can see the pattern, you get to decide how to handle it
-            — instead of getting pulled back into it.
-          </p>
+          <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
+            <p>
+              Steady isn&apos;t here to tell you what they&apos;re thinking.
+              It&apos;s here to help you recognize the pattern, understand your
+              reactions, and make decisions before the cycle starts making them
+              for you.
+            </p>
+          </div>
 
-          <p className="mb-6">
-            Steady isn&apos;t here to tell you what they&apos;re thinking.
-            It&apos;s here to help you spot the pattern, understand your own
-            reactions, and make the call before the cycle makes it for you.
-          </p>
+          <div data-reveal className="mt-8">
+            <p className="text-xl font-bold text-ink">
+              No mind-reading. No relationship hacks. No false hope.
+            </p>
+            <p className="mt-1 font-hand text-3xl text-clayDeep">
+              Just clarity when things feel confusing.
+            </p>
+          </div>
+        </div>
+      </section>
 
-          <p className="mb-1 font-display text-xl italic text-inkSoft">
-            No mind-reading. No relationship hacks. No false hope.
+      {/* How Steady helps */}
+      <section className="bg-paper px-5 py-16">
+        <div className="mx-auto max-w-6xl">
+          <p data-reveal className="text-center font-hand text-3xl text-clayDeep">
+            How Steady helps
           </p>
-          <p className="mb-2 font-display text-2xl italic text-clayDeep">
-            Just clarity when everything else feels like a guessing game.
-          </p>
-
-          <div className="my-10">
-            {[
-              {
-                n: "01",
-                t: "Spot the pattern",
-                d: "Put words to the push-pull, the breadcrumbs, the slow fade — so it stops living rent-free in your head.",
-              },
-              {
-                n: "02",
-                t: "Understand your reactions",
-                d: "See why you reread, replay, and refresh — and what's quietly pulling you back in each time.",
-              },
-              {
-                n: "03",
-                t: "Decide before the cycle does",
-                d: "Make the call that's yours — stay, walk, or just breathe — instead of letting the pattern choose for you.",
-              },
-            ].map((item) => (
-              <div
-                key={item.n}
-                className="flex items-baseline gap-4 border-t border-line py-5 last:border-b"
-              >
-                <span className="min-w-[1.6rem] font-display text-base italic text-clay">
-                  {item.n}
-                </span>
-                <div className="flex-1">
-                  <strong className="mb-1 block font-display text-lg font-medium">
-                    {item.t}
-                  </strong>
-                  <span className="text-base leading-relaxed text-inkSoft">
-                    {item.d}
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {steps.map((s) => (
+              <div key={s.n} data-reveal className="flex flex-col">
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-sm font-extrabold text-cream">
+                    {s.n}
                   </span>
+                  <h3 className="text-xl font-extrabold leading-tight text-ink">
+                    {s.t}
+                  </h3>
                 </div>
+                <p className="mb-5 text-base leading-relaxed text-inkSoft">
+                  {s.d}
+                </p>
+                <Slot src={s.img} alt={`Step ${s.n} — ${s.t}`} ratio="1 / 1" className="mt-auto" />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Signup */}
-      <section className="mt-12 bg-paperDeep py-14" id="join">
-        <div className="mx-auto w-full max-w-[34rem] px-6">
-          <h2 className="mb-4 font-display text-3xl font-normal leading-tight sm:text-4xl">
-            The beta is opening soon.
+      {/* Closing quote */}
+      <section className="px-5 py-16">
+        <div data-reveal className="mx-auto max-w-read text-center">
+          <div className="mb-5 flex justify-center -space-x-3">
+            <span className="h-12 w-12 rounded-full border-2 border-cream bg-lavender/40" aria-hidden="true" />
+            <span className="h-12 w-12 rounded-full border-2 border-cream bg-coral/40" aria-hidden="true" />
+          </div>
+          <p className="text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]">
+            <span className="font-hand text-4xl text-clay">“</span>Steady
+            doesn&apos;t tell you what they&apos;re thinking. It helps you
+            recognize the pattern, understand your reactions, and make decisions
+            before the cycle starts making them for you.
+          </p>
+          <p className="mt-4 font-hand text-3xl text-lavender">with you, not at you ♡</p>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section id="join" className="px-5 pb-20">
+        <div
+          data-reveal
+          className="mx-auto max-w-3xl rounded-3xl bg-ink px-6 py-12 text-center text-cream sm:px-12"
+        >
+          <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+            Understand the pattern. Break the cycle.
           </h2>
-          <p className="mb-7 text-lg text-inkSoft">
-            Leave your email and you&apos;ll be among the first in. No pressure,
-            no noise — just a note when it&apos;s ready for you.
+          <p className="mx-auto mt-3 max-w-md text-base text-cream/80">
+            The beta is opening soon. Leave your email and you&apos;ll be among
+            the first in — no pressure, no noise.
           </p>
-          <SignupForm cta="Save my spot" />
-          <p className="mt-3 text-sm leading-relaxed text-inkFaint">
-            We&apos;ll use your email only to tell you about the Steady beta.
-            Unsubscribe anytime.
-          </p>
+          <div className="mx-auto mt-7 max-w-md">
+            <WaitlistForm cta="Join the Waitlist" />
+            <p className="mt-2.5 text-sm text-cream/60">
+              We&apos;ll only email you about the Steady beta. Unsubscribe
+              anytime.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 pb-14 pt-8">
-        <div className="mx-auto flex w-full max-w-read flex-wrap items-center justify-between gap-3 border-t border-line pt-7">
-          <div className="font-display text-base font-medium uppercase tracking-[0.16em]">
-            Steady<span className="text-clay">.</span>
+      <footer className="px-5 pb-12">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-line pt-7">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-cream">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 14 C 7 8, 9 8, 12 12 S 17 16, 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className="font-extrabold tracking-tight">Steady</span>
           </div>
           <div className="text-sm text-inkFaint">
             © {new Date().getFullYear()} Steady · staysteady.io

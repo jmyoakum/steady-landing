@@ -1,27 +1,25 @@
 import type { Metadata } from "next";
-import { Fraunces, Newsreader } from "next/font/google";
+import { Plus_Jakarta_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
-const newsreader = Newsreader({
+const caveat = Caveat({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
+  weight: ["500", "600", "700"],
+  variable: "--font-caveat",
   display: "swap",
 });
 
 const siteUrl = "https://staysteady.io";
-const title = "Steady — Find your footing in love that runs hot and cold";
+const title = "Steady — Understand the pattern. Break the cycle.";
 const description =
-  "Steady helps you understand avoidant relationship behavior and navigate the patterns — so you don't lose yourself in the process. Join the beta.";
+  "Steady helps you understand avoidant relationship behavior and navigate the patterns so you don't lose yourself in the process. Join the waitlist.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -45,8 +43,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${newsreader.variable}`}>
-      <body className="font-body text-[1.0625rem] leading-relaxed sm:text-[1.15rem]">
+    <html lang="en" className={`${jakarta.variable} ${caveat.variable}`}>
+      <body className="bg-cream font-body text-[1.0625rem] leading-relaxed text-ink antialiased">
         {children}
       </body>
     </html>
