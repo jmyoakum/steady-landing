@@ -92,40 +92,6 @@ function WaitlistForm({
   );
 }
 
-/* ---------- Image slot: shows your art when present, a tidy placeholder until then ---------- */
-function Slot({
-  src,
-  alt,
-  className,
-  ratio,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  ratio?: string;
-}) {
-  const [ok, setOk] = useState(true);
-  return (
-    <div className={`slot ${className ?? ""}`} style={{ aspectRatio: ratio ?? "4 / 5" }}>
-      {ok ? (
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          className="slot-img"
-          onError={() => setOk(false)}
-        />
-      ) : (
-        <div className="slot-ph">
-          <span className="text-2xl text-clay" aria-hidden="true">✦</span>
-          <span className="text-sm font-medium">{alt}</span>
-          <code>{src}</code>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function TrustItem({
   color,
   label,
@@ -176,22 +142,19 @@ export default function Home() {
       n: "01",
       t: "See the pattern",
       d: "Recognize the push and pull, the distance, the breadcrumbs, and the mixed signals before they pull you back into the same cycle.",
-      img: "/img/step-01.png",
-      tint: "from-lavender/15",
+      img: "/img/step-01.jpg",
     },
     {
       n: "02",
       t: "Understand what's happening",
       d: "Make sense of hot and cold behavior, situationships, mixed signals, and emotional distance without guessing what they mean.",
-      img: "/img/step-02.png",
-      tint: "from-coral/15",
+      img: "/img/step-02.jpg",
     },
     {
       n: "03",
       t: "Choose your next move",
       d: "Decide how to respond before confusion, hope, and emotion start making decisions for you.",
-      img: "/img/step-03.png",
-      tint: "from-gold/15",
+      img: "/img/step-03.jpg",
     },
   ];
 
@@ -262,7 +225,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 font-hand text-2xl text-lavender">
-              Just clarity when things feel confusing.
+              Recognize the pattern. Choose what happens next.
             </p>
           </div>
 
@@ -271,21 +234,15 @@ export default function Home() {
             <div className="floaty-slow absolute -left-2 top-4 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
               Should I text? Wait? Move on?
             </div>
-            <div className="floaty absolute -right-1 top-24 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
+            <div className="floaty absolute -right-1 bottom-6 z-10 hidden rounded-2xl bg-cream px-3 py-2 text-sm shadow-md sm:block">
               Why do I keep getting pulled back in?
             </div>
-            <div className="relative pb-[14%]">
+            <div className="group overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5">
               <img
-                src="/img/hero-girl.jpg"
-                alt="Someone in bed, phone in hand, lost in thought"
+                src="/img/hero.jpg"
+                alt="Two people at dusk, looking away from each other"
                 loading="eager"
-                className="w-[80%] rounded-[1.5rem] shadow-xl ring-1 ring-black/5"
-              />
-              <img
-                src="/img/hero-guy.jpg"
-                alt="Someone at a desk, replaying the conversation"
-                loading="eager"
-                className="absolute bottom-0 right-0 w-[58%] rotate-3 rounded-[1.25rem] border-4 border-cream shadow-2xl"
+                className="w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
               />
             </div>
           </div>
@@ -360,33 +317,48 @@ export default function Home() {
               No mind-reading. No relationship hacks. No false hope.
             </p>
             <p className="mt-1 font-hand text-3xl text-clayDeep">
-              Just clarity when things feel confusing.
+              Recognize the pattern. Choose what happens next.
             </p>
           </div>
         </div>
       </section>
 
       {/* How Steady helps */}
-      <section className="bg-paper px-5 py-16">
-        <div className="mx-auto max-w-6xl">
+      <section className="bg-paper px-5 py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl">
           <p data-reveal className="text-center font-hand text-3xl text-clayDeep">
             How Steady helps
           </p>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
-            {steps.map((s) => (
-              <div key={s.n} data-reveal className="flex flex-col">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-sm font-extrabold text-cream">
-                    {s.n}
-                  </span>
-                  <h3 className="text-xl font-extrabold leading-tight text-ink">
-                    {s.t}
-                  </h3>
+          <div className="mt-12 flex flex-col gap-16 sm:gap-24">
+            {steps.map((s, i) => (
+              <div
+                key={s.n}
+                data-reveal
+                className="grid items-center gap-6 md:grid-cols-2 md:gap-12"
+              >
+                <div
+                  className={`group overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 ${
+                    i % 2 === 1 ? "md:order-2" : ""
+                  }`}
+                >
+                  <img
+                    src={s.img}
+                    alt={`${s.t} — illustrated`}
+                    loading="lazy"
+                    className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
                 </div>
-                <p className="mb-5 text-base leading-relaxed text-inkSoft">
-                  {s.d}
-                </p>
-                <Slot src={s.img} alt={`Step ${s.n} — ${s.t}`} ratio="1 / 1" className="mt-auto" />
+                <div className={i % 2 === 1 ? "md:order-1" : ""}>
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-sm font-extrabold text-cream">
+                      {s.n}
+                    </span>
+                    <h3 className="text-2xl font-extrabold leading-tight text-ink">
+                      {s.t}
+                    </h3>
+                  </div>
+                  <p className="text-lg leading-relaxed text-inkSoft">{s.d}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -406,7 +378,6 @@ export default function Home() {
             recognize the pattern, understand your reactions, and make decisions
             before the cycle starts making them for you.
           </p>
-          <p className="mt-4 font-hand text-3xl text-lavender">with you, not at you ♡</p>
         </div>
       </section>
 
