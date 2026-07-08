@@ -62,10 +62,10 @@ export default function Home() {
               href="/quiz"
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-clay px-8 py-4 text-lg font-bold text-cream shadow-md transition-all hover:bg-clayDeep hover:shadow-lg active:translate-y-px"
             >
-              Take the 2-Minute Quiz →
+              Take the Quiz →
             </a>
             <p className="mt-3 text-sm text-inkFaint">
-              13 questions · about 2 minutes · no sign-up to see your result
+              It only takes a few minutes · no sign-up to see your result
             </p>
           </div>
 
