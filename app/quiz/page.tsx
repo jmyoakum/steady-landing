@@ -3,18 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SiteHeader, Footer } from "../shared";
-import { quiz, scoreQuiz, type ProfileSlug } from "../data";
+import { quiz, sectionMeta, computeResult } from "../data";
 
 export default function QuizPage() {
   const router = useRouter();
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
-  const [picks, setPicks] = useState<ProfileSlug[]>([]);
+  const [picks, setPicks] = useState<string[]>([]);
 
-  function choose(p: ProfileSlug) {
-    const next = [...picks, p];
+  function choose(v: string) {
+    const next = [...picks, v];
     if (step + 1 >= quiz.length) {
-      router.push(`/profile/${scoreQuiz(next)}`);
+      const r = computeResult(next);
+      router.push(`/result?you=${r.you}&them=${r.them}&dyn=${r.dyn}`);
       return;
     }
     setPicks(next);
@@ -32,6 +33,9 @@ export default function QuizPage() {
 
   const q = quiz[step];
   const progress = Math.round((step / quiz.length) * 100);
+  const meta = sectionMeta[q?.section ?? 1];
+  // Show a section intro card the first time we land on a new section
+  const isSectionStart = step === 0 || quiz[step - 1]?.section !== q?.section;
 
   return (
     <div className="relative z-[2] min-h-screen">
@@ -42,14 +46,15 @@ export default function QuizPage() {
           {!started ? (
             <div className="text-center">
               <p className="mb-4 font-hand text-3xl text-clayDeep">
-                A quick read on your pattern
+                A quick read on your dynamic
               </p>
               <h1 className="text-[2.2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
-                What&apos;s your relationship dynamic?
+                What&apos;s the dynamic between you?
               </h1>
               <p className="mx-auto mt-5 max-w-md text-lg leading-relaxed text-inkSoft">
-                13 quick questions about how you react when someone runs hot and
-                cold. About two minutes. No sign-up to see your result.
+                Three quick parts: how you move, what you notice in them, and
+                the pattern you make together. It only takes a few minutes. No
+                sign-up to see your result.
               </p>
               <button
                 onClick={() => setStarted(true)}
@@ -64,7 +69,7 @@ export default function QuizPage() {
           ) : (
             <div>
               {/* progress */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="mb-2 flex items-center justify-between text-sm text-inkFaint">
                   <button
                     onClick={back}
@@ -84,6 +89,18 @@ export default function QuizPage() {
                 </div>
               </div>
 
+              {/* section label */}
+              <p className="mb-2 text-sm font-bold uppercase tracking-[0.14em] text-clay">
+                {meta.label}
+              </p>
+
+              {isSectionStart && (
+                <div className="mb-5 rounded-2xl bg-paper px-5 py-4 text-inkSoft ring-1 ring-black/5">
+                  <p className="font-semibold text-ink">{meta.title}</p>
+                  <p className="mt-1 text-[15px] leading-relaxed">{meta.blurb}</p>
+                </div>
+              )}
+
               <h2 className="text-2xl font-extrabold leading-snug text-ink sm:text-[1.7rem]">
                 {q.q}
               </h2>
@@ -92,7 +109,7 @@ export default function QuizPage() {
                 {q.options.map((opt, idx) => (
                   <button
                     key={idx}
-                    onClick={() => choose(opt.p)}
+                    onClick={() => choose(opt.v)}
                     className="group rounded-2xl border border-line bg-cream px-5 py-4 text-left text-lg text-ink shadow-sm transition-all hover:border-clay hover:bg-paper hover:shadow-md active:translate-y-px"
                   >
                     {opt.t}
