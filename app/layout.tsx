@@ -17,7 +17,7 @@ const caveat = Caveat({
 });
 
 const siteUrl = "https://staysteady.io";
-const title = "Steady — Understand the pattern. Break the cycle.";
+const title = "Steady — Understand your relationship dynamic";
 const description =
   "Every relationship has a dynamic. Steady helps you recognize yours so you can understand each other better and navigate it with confidence. Join the waitlist.";
 
