@@ -143,10 +143,10 @@ export default function Home() {
           {/* Visual break — clarity emerging from confusion */}
           <div data-reveal className="my-12">
             <img
-              src="/img/art-signal.svg"
-              alt="An illustration of a tangle of lines resolving into one clear signal"
+              src="/img/break-walk.jpg"
+              alt="A couple walking side by side down a rain-lit street at dusk"
               loading="lazy"
-              className="mx-auto w-full max-w-md rounded-2xl"
+              className="mx-auto w-full max-w-xl rounded-2xl"
             />
           </div>
 
