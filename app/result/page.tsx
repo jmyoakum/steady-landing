@@ -232,6 +232,10 @@ function ResultInner() {
           </a>
         </div>
       </section>
+
+      {/* Mounted with the content (after Suspense resolves) so the reveal
+          observer actually sees these elements. */}
+      <RevealScript />
     </>
   );
 }
@@ -248,7 +252,6 @@ export default function ResultPage() {
         <ResultInner />
       </Suspense>
       <Footer />
-      <RevealScript />
     </div>
   );
 }
