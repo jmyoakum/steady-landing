@@ -68,13 +68,6 @@ export default function Home() {
             </p>
           </div>
 
-          <a
-            href="/quiz"
-            className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
-          >
-            Curious what your dynamic is? Take the 2-minute quiz →
-          </a>
-
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
             <TrustItem color="bg-lavender/20" label="No mind-reading">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -96,6 +89,27 @@ export default function Home() {
 
           <p className="mt-5 font-hand text-2xl text-lavender">
             Recognize the pattern. Choose what happens next.
+          </p>
+        </div>
+      </section>
+
+      {/* Quiz CTA — prominent, directly beneath the hero */}
+      <section className="px-5 pb-8">
+        <div
+          data-reveal
+          className="mx-auto max-w-2xl rounded-3xl border border-clay/30 bg-paper px-6 py-9 text-center shadow-sm sm:px-10"
+        >
+          <p className="font-hand text-3xl text-clayDeep">
+            Discover your relationship dynamic.
+          </p>
+          <a
+            href="/quiz"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-clay px-8 py-4 text-lg font-bold text-cream shadow-md transition-all hover:bg-clayDeep hover:shadow-lg active:translate-y-px"
+          >
+            Take the 2-Minute Quiz →
+          </a>
+          <p className="mt-3 text-sm text-inkFaint">
+            13 questions · about 2 minutes · no sign-up to see your result
           </p>
         </div>
       </section>
