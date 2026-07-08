@@ -19,7 +19,7 @@ const caveat = Caveat({
 const siteUrl = "https://staysteady.io";
 const title = "Steady — Understand the pattern. Break the cycle.";
 const description =
-  "Steady helps you understand avoidant relationship behavior and navigate the patterns so you don't lose yourself in the process. Join the waitlist.";
+  "Every relationship has a dynamic. Steady helps you recognize yours so you can understand each other better and navigate it with confidence. Join the waitlist.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

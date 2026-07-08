@@ -33,7 +33,7 @@ export default function Home() {
       <section className="px-5 pb-12 pt-12 sm:pt-16">
         <div data-reveal className="mx-auto max-w-2xl">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-clay">
-            Understand the pattern · Break the cycle · Make better decisions
+            Every relationship has a dynamic · Learn to read yours
           </p>
           <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
             When someone keeps pulling away, you don&apos;t have to{" "}
@@ -42,10 +42,10 @@ export default function Home() {
 
           <div className="relative mt-8">
             <div className="floaty-slow absolute -left-1 -top-3 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
-              Should I text? Wait? Move on?
+              What&apos;s really going on here?
             </div>
             <div className="floaty absolute -right-1 bottom-4 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
-              Why do I keep getting pulled back in?
+              Why do we keep doing this?
             </div>
             <div className="group overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5">
               <img
@@ -58,8 +58,7 @@ export default function Home() {
           </div>
 
           <p className="mt-8 text-lg leading-relaxed text-inkSoft">
-            Steady helps you understand avoidant relationship behavior and
-            navigate the patterns so you don&apos;t lose yourself in the process.
+            Every relationship has a dynamic. Steady helps you recognize yours — so you can understand each other better and navigate it with confidence.
           </p>
 
           <div className="mt-6 max-w-md">
@@ -73,7 +72,7 @@ export default function Home() {
             href="/quiz"
             className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
           >
-            Not sure what&apos;s going on? Take the 2-minute quiz →
+            Curious what your dynamic is? Take the 2-minute quiz →
           </a>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
@@ -118,15 +117,7 @@ export default function Home() {
 
           <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
             <p>
-              Enough connection to keep you invested… enough distance to keep
-              you questioning everything. So you start thinking again. You reread
-              the messages. You replay the conversations. You tell yourself
-              you&apos;re done checking your phone… then check it anyway. You
-              search for meaning in every text, every delay, every tiny sign.
-            </p>
-            <p>
-              Not because you&apos;re obsessed. Because you&apos;re trying to
-              make sense of something that doesn&apos;t make sense.
+              Enough connection to feel real, enough distance to keep you guessing. So you start looking for the pattern — in the texts, the timing, the little things. Not because you&apos;re overthinking it, but because there&apos;s usually something real underneath the mixed signals.
             </p>
           </div>
 
@@ -134,9 +125,7 @@ export default function Home() {
             data-reveal
             className="my-10 border-l-[3px] border-clay pl-5 text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]"
           >
-            And somewhere in the middle of all that… you realize you&apos;re
-            spending more time trying to understand the relationship than
-            actually experiencing it.
+            And somewhere in there, a better question shows up — not “what are they thinking?” but “what’s the pattern between us?”
           </blockquote>
 
           {/* Visual break — clarity emerging from confusion */}
@@ -151,9 +140,7 @@ export default function Home() {
 
           <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
             <p>
-              Avoidant behavior follows patterns. Once you can recognize those
-              patterns, the confusion starts to make sense. The mixed signals
-              stop feeling random. The push and pull becomes predictable.
+              Every relationship runs on patterns. Once you can see yours, the mixed signals stop feeling random — the push and pull starts to make sense.
             </p>
           </div>
 
@@ -161,16 +148,12 @@ export default function Home() {
             data-reveal
             className="my-10 rounded-2xl bg-paperDeep px-6 py-7 text-2xl font-bold leading-snug text-ink sm:text-[1.7rem]"
           >
-            And when you can see the pattern… you can decide how to navigate it
-            instead of getting pulled back into it.
+            And once you can see the pattern, you can work with it — together — instead of guessing your way through.
           </blockquote>
 
           <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
             <p>
-              Steady isn&apos;t here to tell you what they&apos;re thinking.
-              It&apos;s here to help you recognize the pattern, understand your
-              reactions, and make decisions before the cycle starts making them
-              for you.
+              Steady isn&apos;t here to tell you what they&apos;re thinking. It&apos;s here to help you see the pattern, understand your own side of it, and figure out what you both actually need.
             </p>
           </div>
 
@@ -283,10 +266,7 @@ export default function Home() {
             />
           </div>
           <p className="text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]">
-            <span className="font-hand text-4xl text-clay">“</span>Steady
-            doesn&apos;t tell you what they&apos;re thinking. It helps you
-            recognize the pattern, understand your reactions, and make decisions
-            before the cycle starts making them for you.
+            <span className="font-hand text-4xl text-clay">“</span>Steady doesn&apos;t tell you what they&apos;re thinking. It helps you see your dynamic, understand your own reactions, and figure out what you both need.
           </p>
         </div>
       </section>
@@ -298,7 +278,7 @@ export default function Home() {
           className="mx-auto max-w-3xl rounded-3xl bg-ink px-6 py-12 text-center text-cream sm:px-12"
         >
           <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
-            Understand the pattern. Break the cycle.
+            Understand your dynamic.
           </h2>
           <p className="mx-auto mt-3 max-w-md text-base text-cream/80">
             The beta is opening soon. Leave your email and you&apos;ll be among

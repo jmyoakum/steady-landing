@@ -17,7 +17,7 @@ export const framework: FrameworkItem[] = [
     name: "Signal",
     tagline: "Make sense of what happened.",
     body:
-      "Get the confusing moment out of your head and onto the page — the facts, the feeling, what you actually noticed — so the loop can finally stop.",
+      "Get the moment out of your head and onto the page — the facts, the feeling, what you noticed — so you can actually see it.",
     art: "/img/art-signal.svg",
     app: "/img/app-signal.jpg",
     accentText: "text-clayDeep",
