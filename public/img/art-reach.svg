@@ -1,0 +1,28 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Reach — understanding and communication">
+  <defs>
+    <linearGradient id="rbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F1E7D6"/><stop offset="1" stop-color="#FBF8F2"/>
+    </linearGradient>
+    <linearGradient id="rbridge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C06B4A"/><stop offset="0.5" stop-color="#E6B450"/><stop offset="1" stop-color="#8E83C7"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="800" height="600" rx="28" fill="url(#rbg)"/>
+  <rect x="1" y="1" width="798" height="598" rx="27" fill="none" stroke="#E4DCCC" stroke-width="2"/>
+  <!-- two forms reaching -->
+  <path d="M60 300 C 60 210, 130 160, 220 175 C 300 188, 300 300, 240 330 C 300 360, 300 470, 210 470 C 120 470, 60 400, 60 300 Z"
+        fill="#C06B4A" fill-opacity="0.18" stroke="#C06B4A" stroke-opacity="0.55" stroke-width="3"/>
+  <path d="M740 300 C 740 210, 670 160, 580 175 C 500 188, 500 300, 560 330 C 500 360, 500 470, 590 470 C 680 470, 740 400, 740 300 Z"
+        fill="#8E83C7" fill-opacity="0.18" stroke="#8E83C7" stroke-opacity="0.6" stroke-width="3"/>
+  <!-- bridge of understanding -->
+  <path d="M250 320 C 360 220, 440 220, 550 320" fill="none" stroke="url(#rbridge)" stroke-width="6" stroke-linecap="round"/>
+  <!-- traveling dots -->
+  <circle cx="320" cy="262" r="7" fill="#C06B4A"/>
+  <circle cx="400" cy="243" r="7" fill="#E6B450"/>
+  <circle cx="480" cy="262" r="7" fill="#8E83C7"/>
+  <!-- message bubbles meeting at center -->
+  <g>
+    <rect x="352" y="150" width="70" height="46" rx="14" fill="#FBF8F2" stroke="#C06B4A" stroke-opacity="0.7" stroke-width="3"/>
+    <rect x="392" y="176" width="70" height="46" rx="14" fill="#FBF8F2" stroke="#8E83C7" stroke-opacity="0.75" stroke-width="3"/>
+  </g>
+</svg>

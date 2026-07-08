@@ -1,0 +1,25 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Steady — stability, repair, and forward movement">
+  <defs>
+    <linearGradient id="tbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F1E7D6"/><stop offset="1" stop-color="#FBF8F2"/>
+    </linearGradient>
+    <linearGradient id="tpath" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#8B9A86"/><stop offset="1" stop-color="#C06B4A"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="800" height="600" rx="28" fill="url(#tbg)"/>
+  <rect x="1" y="1" width="798" height="598" rx="27" fill="none" stroke="#E4DCCC" stroke-width="2"/>
+  <!-- calm horizon -->
+  <line x1="70" y1="430" x2="730" y2="430" stroke="#8B9A86" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round"/>
+  <!-- grounded, repaired stone (kintsugi gold seam) -->
+  <path d="M250 430 C 250 350, 300 330, 360 335 C 420 340, 450 380, 445 430 Z"
+        fill="#241F1A" fill-opacity="0.10" stroke="#241F1A" stroke-opacity="0.35" stroke-width="3"/>
+  <path d="M352 335 C 340 365, 372 385, 356 430" fill="none" stroke="#E6B450" stroke-width="4" stroke-linecap="round"/>
+  <!-- forward, rising path with momentum -->
+  <path d="M250 470 C 380 470, 430 380, 520 330 C 580 298, 630 285, 680 250"
+        fill="none" stroke="url(#tpath)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <path d="M660 238 L 690 244 L 672 270 Z" fill="#C06B4A"/>
+  <!-- steady anchor dots -->
+  <circle cx="250" cy="470" r="8" fill="#8B9A86"/>
+  <circle cx="405" cy="430" r="5" fill="#241F1A" fill-opacity="0.3"/>
+</svg>
