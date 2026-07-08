@@ -18,7 +18,7 @@ export const framework: FrameworkItem[] = [
     tagline: "Make sense of what happened.",
     body:
       "Get the moment out of your head and onto the page — the facts, the feeling, what you noticed — so you can actually see it.",
-    art: "/img/art-signal.svg",
+    art: "/img/fw-signal.jpg",
     app: "/img/app-signal.jpg",
     accentText: "text-clayDeep",
     accentBg: "bg-clay/15",
@@ -40,7 +40,7 @@ export const framework: FrameworkItem[] = [
     tagline: "See your patterns.",
     body:
       "Watch what keeps showing up over time — the distance, the push and pull — so you can choose your next move instead of repeating it.",
-    art: "/img/art-steady.svg",
+    art: "/img/fw-steady.jpg",
     app: "/img/app-steady.jpg",
     accentText: "text-sage",
     accentBg: "bg-sage/20",
