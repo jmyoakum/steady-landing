@@ -1,97 +1,6 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-type Status = "idle" | "loading" | "success" | "error";
-
-/* ---------- Email capture (wired to Kit via /api/subscribe) ---------- */
-function WaitlistForm({
-  cta,
-  id,
-  tone = "light",
-}: {
-  cta: string;
-  id?: string;
-  tone?: "light" | "dark";
-}) {
-  const dark = tone === "dark";
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState("");
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (status === "loading" || status === "success") return;
-    const value = email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
-      setStatus("error");
-      setMessage("That email looks off — mind checking it?");
-      return;
-    }
-    setStatus("loading");
-    setMessage("");
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: value }),
-      });
-      if (!res.ok) throw new Error("bad");
-      setStatus("success");
-      setMessage("You're on the list. We'll be in touch soon. ✦");
-    } catch {
-      setStatus("error");
-      setMessage("Something hiccuped — try again in a moment?");
-    }
-  }
-
-  if (status === "success") {
-    return (
-      <p
-        className={`font-hand text-2xl ${dark ? "text-gold" : "text-clayDeep"}`}
-        role="status"
-        aria-live="polite"
-      >
-        {message}
-      </p>
-    );
-  }
-
-  return (
-    <form id={id} onSubmit={onSubmit} noValidate className="w-full">
-      <div className="flex flex-col gap-2.5 sm:flex-row">
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          aria-label="Email address"
-          placeholder="your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="min-w-0 flex-1 rounded-full border border-line bg-cream px-5 py-3.5 text-base text-ink shadow-sm outline-none transition-colors placeholder:text-inkFaint focus:border-clay"
-        />
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className={`whitespace-nowrap rounded-full px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:shadow-md active:translate-y-px disabled:opacity-60 ${
-            dark ? "bg-clay hover:bg-coral" : "bg-ink hover:bg-clayDeep"
-          }`}
-        >
-          {status === "loading" ? "…" : cta}
-        </button>
-      </div>
-      {message && status === "error" ? (
-        <p
-          className={`mt-2 font-hand text-xl ${dark ? "text-coral" : "text-clayDeep"}`}
-          role="status"
-          aria-live="polite"
-        >
-          {message}
-        </p>
-      ) : null}
-    </form>
-  );
-}
+import type { ReactNode } from "react";
+import { SiteHeader, Footer, WaitlistForm, RevealScript } from "./shared";
+import { framework } from "./data";
 
 function TrustItem({
   color,
@@ -100,7 +9,7 @@ function TrustItem({
 }: {
   color: string;
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -116,70 +25,9 @@ function TrustItem({
 }
 
 export default function Home() {
-  useEffect(() => {
-    const els = Array.from(document.querySelectorAll("[data-reveal]"));
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      els.forEach((el) => el.classList.add("in"));
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            en.target.classList.add("in");
-            io.unobserve(en.target);
-          }
-        });
-      },
-      { threshold: 0.12 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  const steps = [
-    {
-      n: "01",
-      t: "See the pattern",
-      d: "Recognize the push and pull, the distance, the breadcrumbs, and the mixed signals before they pull you back into the same cycle.",
-      img: "/img/step-01.jpg",
-    },
-    {
-      n: "02",
-      t: "Understand what's happening",
-      d: "Make sense of hot and cold behavior, situationships, mixed signals, and emotional distance without guessing what they mean.",
-      img: "/img/step-02.jpg",
-    },
-    {
-      n: "03",
-      t: "Choose your next move",
-      d: "Decide how to respond before confusion, hope, and emotion start making decisions for you.",
-      img: "/img/step-03.jpg",
-    },
-  ];
-
   return (
     <div className="relative z-[2]">
-      {/* Sticky header */}
-      <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-cream">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 14 C 7 8, 9 8, 12 12 S 17 16, 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </span>
-            <span className="text-lg font-extrabold tracking-tight">Steady</span>
-          </div>
-          <a
-            href="#join"
-            className="rounded-full bg-ink px-4 py-2 text-sm font-bold text-cream transition-colors hover:bg-clayDeep"
-          >
-            Join Waitlist
-          </a>
-        </div>
-      </header>
+      <SiteHeader joinHref="#join" />
 
       {/* Hero */}
       <section className="px-5 pb-12 pt-12 sm:pt-16">
@@ -192,7 +40,6 @@ export default function Home() {
             <span className="text-clayDeep">disappear</span> with them.
           </h1>
 
-          {/* Door hero image — they care, but don't know how to open the door */}
           <div className="relative mt-8">
             <div className="floaty-slow absolute -left-1 -top-3 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
               Should I text? Wait? Move on?
@@ -222,6 +69,13 @@ export default function Home() {
             </p>
           </div>
 
+          <a
+            href="/quiz"
+            className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
+          >
+            Not sure what&apos;s going on? Take the 2-minute quiz →
+          </a>
+
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
             <TrustItem color="bg-lavender/20" label="No mind-reading">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -247,7 +101,7 @@ export default function Home() {
         </div>
       </section>
 
-            {/* Narrative body */}
+      {/* Narrative body */}
       <section className="px-5 py-14">
         <div className="mx-auto max-w-read">
           <div data-reveal className="space-y-4 text-lg leading-relaxed text-inkSoft">
@@ -285,6 +139,16 @@ export default function Home() {
             actually experiencing it.
           </blockquote>
 
+          {/* Visual break — clarity emerging from confusion */}
+          <div data-reveal className="my-12">
+            <img
+              src="/img/art-signal.svg"
+              alt="An illustration of a tangle of lines resolving into one clear signal"
+              loading="lazy"
+              className="mx-auto w-full max-w-md rounded-2xl"
+            />
+          </div>
+
           <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
             <p>
               Avoidant behavior follows patterns. Once you can recognize those
@@ -321,43 +185,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How Steady helps */}
+      {/* Signal / Reach / Steady framework */}
       <section className="bg-paper px-5 py-16 sm:py-20">
         <div className="mx-auto max-w-5xl">
           <p data-reveal className="text-center font-hand text-3xl text-clayDeep">
-            How Steady helps
+            How Steady works
           </p>
-          <div className="mt-12 flex flex-col gap-16 sm:gap-24">
-            {steps.map((s, i) => (
+          <p data-reveal className="mx-auto mt-2 max-w-xl text-center text-lg text-inkSoft">
+            Three simple moves — the same three that live inside the app.
+          </p>
+
+          <div className="mt-12 flex flex-col gap-16 sm:gap-20">
+            {framework.map((item, i) => (
               <div
-                key={s.n}
+                key={item.key}
                 data-reveal
                 className="grid items-center gap-6 md:grid-cols-2 md:gap-12"
               >
                 <div
-                  className={`group overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 ${
+                  className={`overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 ${
                     i % 2 === 1 ? "md:order-2" : ""
                   }`}
                 >
                   <img
-                    src={s.img}
-                    alt={`${s.t} — illustrated`}
+                    src={item.art}
+                    alt={`${item.name} — ${item.tagline}`}
                     loading="lazy"
-                    className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.03]"
+                    className="h-auto w-full"
                   />
                 </div>
                 <div className={i % 2 === 1 ? "md:order-1" : ""}>
-                  <div className="mb-3 flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-sm font-extrabold text-cream">
-                      {s.n}
-                    </span>
-                    <h3 className="text-2xl font-extrabold leading-tight text-ink">
-                      {s.t}
-                    </h3>
-                  </div>
-                  <p className="text-lg leading-relaxed text-inkSoft">{s.d}</p>
+                  <span
+                    className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${item.accentBg} ${item.accentText}`}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-3 text-3xl font-extrabold leading-tight text-ink">
+                    {item.name}
+                  </h3>
+                  <p className={`mt-1 text-xl font-semibold ${item.accentText}`}>
+                    {item.tagline}
+                  </p>
+                  <p className="mt-3 text-lg leading-relaxed text-inkSoft">
+                    {item.body}
+                  </p>
                 </div>
               </div>
+            ))}
+          </div>
+
+          <div data-reveal className="mt-14 text-center">
+            <a
+              href="/quiz"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:bg-clayDeep hover:shadow-md"
+            >
+              Which pattern is yours? Take the quiz →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* App proof band (product support, used sparingly) */}
+      <section className="px-5 py-16">
+        <div className="mx-auto max-w-5xl">
+          <p data-reveal className="text-center font-hand text-3xl text-clayDeep">
+            A peek inside the app
+          </p>
+          <div data-reveal className="mt-10 grid grid-cols-3 gap-3 sm:gap-6">
+            {framework.map((item) => (
+              <figure key={item.key} className="flex flex-col items-center">
+                <div className="overflow-hidden rounded-[1.4rem] border-[3px] border-ink/10 bg-cream shadow-lg">
+                  <img
+                    src={item.app}
+                    alt={`${item.name} screen in the Steady app`}
+                    loading="lazy"
+                    className="h-auto w-full"
+                  />
+                </div>
+                <figcaption className={`mt-3 text-sm font-bold ${item.accentText}`}>
+                  {item.name}
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
@@ -406,22 +314,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="px-5 pb-12">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-line pt-7">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-cream">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 14 C 7 8, 9 8, 12 12 S 17 16, 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </span>
-            <span className="font-extrabold tracking-tight">Steady</span>
-          </div>
-          <div className="text-sm text-inkFaint">
-            © {new Date().getFullYear()} Steady · staysteady.io
-          </div>
-        </div>
-      </footer>
+      <Footer />
+      <RevealScript />
     </div>
   );
 }
