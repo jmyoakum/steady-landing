@@ -48,7 +48,7 @@ export default function QuizPage() {
                 What&apos;s your relationship dynamic?
               </h1>
               <p className="mx-auto mt-5 max-w-md text-lg leading-relaxed text-inkSoft">
-                12 quick questions about how you react when someone runs hot and
+                13 quick questions about how you react when someone runs hot and
                 cold. About two minutes. No sign-up to see your result.
               </p>
               <button
