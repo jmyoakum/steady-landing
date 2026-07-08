@@ -29,7 +29,7 @@ export const framework: FrameworkItem[] = [
     tagline: "Figure out what to say.",
     body:
       "Say it raw, just for you. No performance, no perfect wording — just what you mean, before you talk yourself out of it.",
-    art: "/img/art-reach.svg",
+    art: "/img/fw-reach.jpg",
     app: "/img/app-reach.jpg",
     accentText: "text-lavender",
     accentBg: "bg-lavender/15",
