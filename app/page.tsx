@@ -30,7 +30,7 @@ export default function Home() {
       <SiteHeader joinHref="#join" />
 
       {/* Hero */}
-      <section className="px-5 pb-12 pt-12 sm:pt-16">
+      <section className="px-5 pb-10 pt-12 sm:pt-16">
         <div data-reveal className="mx-auto max-w-2xl">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-clay">
             Every relationship has a dynamic · Learn to read yours
@@ -40,7 +40,37 @@ export default function Home() {
             <span className="text-clayDeep">disappear</span> with them.
           </h1>
 
-          <div className="relative mt-8">
+          <p className="mt-5 text-lg leading-relaxed text-inkSoft">
+            Every relationship has a dynamic. Steady helps you recognize yours —
+            so you can understand each other better and navigate it with
+            confidence.
+          </p>
+
+          <div className="mt-6 max-w-md">
+            <WaitlistForm cta="Join the Waitlist" />
+            <p className="mt-2.5 text-sm text-inkFaint">
+              Early access, no spam, leave whenever.
+            </p>
+          </div>
+
+          {/* Quiz CTA — prominent, above the fold */}
+          <div className="mt-6 rounded-3xl border border-clay/30 bg-paper px-6 py-7 text-center shadow-sm sm:px-10">
+            <p className="font-hand text-3xl text-clayDeep">
+              Discover your relationship dynamic.
+            </p>
+            <a
+              href="/quiz"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-clay px-8 py-4 text-lg font-bold text-cream shadow-md transition-all hover:bg-clayDeep hover:shadow-lg active:translate-y-px"
+            >
+              Take the 2-Minute Quiz →
+            </a>
+            <p className="mt-3 text-sm text-inkFaint">
+              13 questions · about 2 minutes · no sign-up to see your result
+            </p>
+          </div>
+
+          {/* Emotional visual — below the CTAs */}
+          <div className="relative mt-10">
             <div className="floaty-slow absolute -left-1 -top-3 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
               What&apos;s really going on here?
             </div>
@@ -55,17 +85,6 @@ export default function Home() {
                 className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
               />
             </div>
-          </div>
-
-          <p className="mt-8 text-lg leading-relaxed text-inkSoft">
-            Every relationship has a dynamic. Steady helps you recognize yours — so you can understand each other better and navigate it with confidence.
-          </p>
-
-          <div className="mt-6 max-w-md">
-            <WaitlistForm cta="Join the Waitlist" />
-            <p className="mt-2.5 text-sm text-inkFaint">
-              Early access, no spam, leave whenever.
-            </p>
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6">
@@ -89,27 +108,6 @@ export default function Home() {
 
           <p className="mt-5 font-hand text-2xl text-lavender">
             Recognize the pattern. Choose what happens next.
-          </p>
-        </div>
-      </section>
-
-      {/* Quiz CTA — prominent, directly beneath the hero */}
-      <section className="px-5 pb-8">
-        <div
-          data-reveal
-          className="mx-auto max-w-2xl rounded-3xl border border-clay/30 bg-paper px-6 py-9 text-center shadow-sm sm:px-10"
-        >
-          <p className="font-hand text-3xl text-clayDeep">
-            Discover your relationship dynamic.
-          </p>
-          <a
-            href="/quiz"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-clay px-8 py-4 text-lg font-bold text-cream shadow-md transition-all hover:bg-clayDeep hover:shadow-lg active:translate-y-px"
-          >
-            Take the 2-Minute Quiz →
-          </a>
-          <p className="mt-3 text-sm text-inkFaint">
-            13 questions · about 2 minutes · no sign-up to see your result
           </p>
         </div>
       </section>
