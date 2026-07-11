@@ -1,16 +1,73 @@
 // ─────────────────────────────────────────────────────────────
-// Steady — Relationship Dynamic model
+// Steady — quiz + scoring engine (18 questions: 10 self · 8 partner)
 //
-// The quiz answers three things, in three layers:
-//   1. YOU      — how you tend to operate      → YouStyle
-//   2. THEM     — what you consistently observe → PartnerStyle
-//   3. PATTERN  — what happens between you      → DynamicSlug (the hero)
+// Self archetypes come from three dimensions, three questions each:
+//   Engagement  E1–E3 → Connector ↔ Reflector
+//   Certainty   C1–C3 → Decoder   ↔ Flow
+//   Investment  I1–I3 → Builder   ↔ Wander
+//   Recharge    R1    → contact / solitude   (domain signal, not an archetype)
 //
-// Scoring is intentionally dimensional so future versions can compare
-// two completed quizzes, personalize Signal/Reach/Steady, and track how
-// a dynamic shifts over time. See computeResult() at the bottom.
+// Partner: P1–P5 → observed archetype · P6/P7/P8 → partner domain poles.
+//
+// Preserved deliberately: dynamic slugs, partner slugs, `framework`,
+// and the export names the /result page already depends on.
 // ─────────────────────────────────────────────────────────────
 
+export type YouStyle =
+  | "decoder"
+  | "builder"
+  | "connector"
+  | "reflector"
+  | "flow"
+  | "wander";
+
+export type PartnerStyle = "engager" | "processor" | "redirector" | "fluctuator";
+
+export type DynamicSlug =
+  | "pursue-pause"
+  | "quiet-drift"
+  | "direct-process"
+  | "clarify-flex"
+  | "build-wander"
+  | "reassure-space";
+
+/* Tie-break order for dynamics: style engine (denser evidence) before domain. */
+export const dynamicOrder: DynamicSlug[] = [
+  "pursue-pause",
+  "quiet-drift",
+  "direct-process",
+  "clarify-flex",
+  "build-wander",
+  "reassure-space",
+];
+
+export const youOrder: YouStyle[] = [
+  "connector",
+  "reflector",
+  "decoder",
+  "flow",
+  "builder",
+  "wander",
+];
+
+export const partnerOrder: PartnerStyle[] = [
+  "engager",
+  "processor",
+  "redirector",
+  "fluctuator",
+];
+
+export function isYouStyle(x: string): x is YouStyle {
+  return (youOrder as string[]).includes(x);
+}
+export function isPartnerStyle(x: string): x is PartnerStyle {
+  return (partnerOrder as string[]).includes(x);
+}
+export function isDynamicSlug(x: string): x is DynamicSlug {
+  return (dynamicOrder as string[]).includes(x);
+}
+
+// ── Framework (unchanged — used by the homepage) ──────────────
 export type FrameworkItem = {
   key: string;
   name: string;
@@ -58,35 +115,22 @@ export const framework: FrameworkItem[] = [
   },
 ];
 
-// ── Layer types ───────────────────────────────────────────────
-export type YouStyle = "clarifier" | "connector" | "reflector" | "adapter";
-export type PartnerStyle = "engager" | "processor" | "redirector" | "fluctuator";
-export type DynamicSlug =
-  | "pursue-pause"
-  | "reassure-space"
-  | "direct-process"
-  | "clarify-flex"
-  | "build-wander"
-  | "quiet-drift";
-
-export type QuizKind = "you" | "partner" | "pattern";
-
-export type QuizOption = { t: string; v: string }; // v = a YouStyle | PartnerStyle | DynamicSlug
+// ── Quiz ─────────────────────────────────────────────────────
+export type QuizKind = "self" | "recharge" | "partner" | "pdomain";
+export type QuizOption = { t: string; v: string };
 export type QuizQuestion = {
-  section: 1 | 2 | 3;
+  id: string;
+  part: 1 | 2;
   kind: QuizKind;
   q: string;
   options: QuizOption[];
 };
 
-export const sectionMeta: Record<
-  1 | 2 | 3,
-  { label: string; title: string; blurb: string }
-> = {
+export const partMeta: Record<1 | 2, { label: string; title: string; blurb: string }> = {
   1: {
     label: "Part 1 · You",
     title: "How you tend to move",
-    blurb: "A few questions about what you usually do when a relationship gets uncertain.",
+    blurb: "A few questions about what you usually do in the relationships that matter.",
   },
   2: {
     label: "Part 2 · What you notice",
@@ -94,324 +138,363 @@ export const sectionMeta: Record<
     blurb:
       "Not a diagnosis — just what you consistently see the other person do. Go with your honest read.",
   },
-  3: {
-    label: "Part 3 · The pattern",
-    title: "What happens between you",
-    blurb: "The interaction itself — the thing that keeps repeating.",
-  },
 };
 
-// ── The quiz (18 questions: 9 you · 5 partner · 4 pattern) ─────
+/* Display order: dimensions interleaved so it never feels repetitive. */
 export const quiz: QuizQuestion[] = [
-  // ── Section 1 · YOU ──────────────────────────────────────────
   {
-    section: 1,
-    kind: "you",
-    q: "When something between you feels off, your first instinct is to…",
+    id: "E1",
+    part: 1,
+    kind: "self",
+    q: "When something between you and someone you love feels off, your first move is usually to…",
     options: [
-      { t: "Figure out what it means and where things stand.", v: "clarifier" },
-      { t: "Reach out and try to reconnect.", v: "connector" },
-      { t: "Sit with it a while before you say anything.", v: "reflector" },
-      { t: "Adjust yourself so things feel smooth again.", v: "adapter" },
+      { t: "Reach out and talk it through", v: "connector" },
+      { t: "Bring it up, even if it's a little awkward", v: "connector" },
+      { t: "Take some quiet time to sort out what you feel first", v: "reflector" },
+      { t: "Sit with it a while before you say anything", v: "reflector" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "In a hard conversation, you're most likely to…",
+    id: "C1",
+    part: 1,
+    kind: "self",
+    q: "When a relationship is still taking shape, you feel steadiest when…",
     options: [
-      { t: "Want it named clearly so you both understand it.", v: "clarifier" },
-      { t: "Keep engaging until you feel close again.", v: "connector" },
-      { t: "Need a pause before you can respond well.", v: "reflector" },
-      { t: "Soften your side to keep the peace.", v: "adapter" },
+      { t: "You've talked about where it's going and what it is", v: "decoder" },
+      { t: "The important things have been named out loud", v: "decoder" },
+      { t: "You can feel it's good, even if nothing's been defined yet", v: "flow" },
+      { t: "You let it become what it is without rushing to label it", v: "flow" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "When you need reassurance, you tend to…",
+    id: "I1",
+    part: 1,
+    kind: "self",
+    q: "You feel most connected in a relationship when…",
     options: [
-      { t: "Ask a direct question to get clarity.", v: "clarifier" },
-      { t: "Move closer and look for connection.", v: "connector" },
-      { t: "Go quiet and wait to feel steady on your own.", v: "reflector" },
-      { t: "Tell yourself not to make it a thing.", v: "adapter" },
+      { t: "You're building toward something together", v: "builder" },
+      { t: "You've got plans and things to look forward to", v: "builder" },
+      { t: "You're fully present in what you already have", v: "wander" },
+      { t: "You're just enjoying how things are right now", v: "wander" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "How you process emotions is mostly…",
+    id: "E2",
+    part: 1,
+    kind: "self",
+    q: "When you're going through something stressful, you tend to feel better when…",
     options: [
-      { t: "Out loud — talking it through helps it make sense.", v: "clarifier" },
-      { t: "Together — I feel better when we're connected.", v: "connector" },
-      { t: "Internally — I need space before I know what I feel.", v: "reflector" },
-      { t: "Quietly — I tend to set my own feelings aside.", v: "adapter" },
+      { t: "The people close to you are nearby", v: "connector" },
+      { t: "You let someone in and talk about it", v: "connector" },
+      { t: "You get some space to process it on your own", v: "reflector" },
+      { t: "You work it out in your own head first", v: "reflector" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "When plans or expectations get vague, you…",
+    id: "C2",
+    part: 1,
+    kind: "self",
+    q: "When something between you feels unclear, you'd rather…",
     options: [
-      { t: "Want to define them so you both know the deal.", v: "clarifier" },
-      { t: "Offer options to keep things moving.", v: "connector" },
-      { t: "Hold back and see how it plays out.", v: "reflector" },
-      { t: "Go along with whatever works for them.", v: "adapter" },
+      { t: "Have a conversation and get clear on it", v: "decoder" },
+      { t: "Ask directly, so you know where you stand", v: "decoder" },
+      { t: "Give it time and see how it actually plays out", v: "flow" },
+      { t: "Trust what you're experiencing more than what's been said", v: "flow" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "A whole day passes with barely a word from them. You…",
+    id: "I2",
+    part: 1,
+    kind: "self",
+    q: "When you think about a relationship's future, you tend to…",
     options: [
-      { t: "Want to check in and clear the air.", v: "clarifier" },
-      { t: "Feel the pull to reach out and reconnect.", v: "connector" },
-      { t: "Give it space and wait for a natural moment.", v: "reflector" },
-      { t: "Assume you did something and try to fix it.", v: "adapter" },
+      { t: "Like having a clear sense of where it's headed", v: "builder" },
+      { t: "Feel closer when you're making plans together", v: "builder" },
+      { t: "Prefer to let the future arrive on its own", v: "wander" },
+      { t: "Focus more on the present than on what's next", v: "wander" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "The thing you most want from a relationship is…",
+    id: "E3",
+    part: 1,
+    kind: "self",
+    q: "In your closest relationships, you feel most like yourself when…",
     options: [
-      { t: "To know where you actually stand.", v: "clarifier" },
-      { t: "To feel close and connected.", v: "connector" },
-      { t: "To feel free to be yourself, at your own pace.", v: "reflector" },
-      { t: "To feel like things are easy and harmonious.", v: "adapter" },
+      { t: "You're in regular contact and stay close", v: "connector" },
+      { t: "You check in and reach out often", v: "connector" },
+      { t: "You've got plenty of your own space", v: "reflector" },
+      { t: "You can feel close without being in constant contact", v: "reflector" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "When you're upset, the risk you fall into is…",
+    id: "C3",
+    part: 1,
+    kind: "self",
+    q: "Leaving something important unspoken feels…",
     options: [
-      { t: "Over-analyzing until it lives in your head.", v: "clarifier" },
-      { t: "Reaching so much it starts to feel one-sided.", v: "connector" },
-      { t: "Withdrawing so far they can't reach you.", v: "reflector" },
-      { t: "Disappearing your own needs entirely.", v: "adapter" },
+      { t: "Uncomfortable — you'd rather name it", v: "decoder" },
+      { t: "Like a loose end you want to tie up", v: "decoder" },
+      { t: "Fine, as long as the thing itself feels solid", v: "flow" },
+      { t: "Natural — not everything needs to be said to be real", v: "flow" },
     ],
   },
   {
-    section: 1,
-    kind: "you",
-    q: "The quiet story you tell yourself is usually…",
+    id: "I3",
+    part: 1,
+    kind: "self",
+    q: "A really good stretch in a relationship, to you, looks like…",
     options: [
-      { t: "“If I can understand it, I can handle it.”", v: "clarifier" },
-      { t: "“If I keep showing up, we'll be okay.”", v: "connector" },
-      { t: "“If I don't push, nothing will blow up.”", v: "reflector" },
-      { t: "“If I'm easy to be with, they'll stay.”", v: "adapter" },
+      { t: "Momentum — you're growing and moving forward together", v: "builder" },
+      { t: "Making progress on things that matter to you both", v: "builder" },
+      { t: "A run of really good, ordinary days together", v: "wander" },
+      { t: "Being fully in the moment, not thinking about what's next", v: "wander" },
+    ],
+  },
+  {
+    id: "R1",
+    part: 1,
+    kind: "recharge",
+    q: "After a long day — even a good one — you usually want to…",
+    options: [
+      { t: "Be close — talk it through and unwind together", v: "contact" },
+      { t: "Spend it together, nothing heavy", v: "contact" },
+      { t: "Have some quiet time to yourself first", v: "solitude" },
+      { t: "Fully recharge on your own before reconnecting", v: "solitude" },
     ],
   },
 
-  // ── Section 2 · WHAT YOU OBSERVE ─────────────────────────────
   {
-    section: 2,
+    id: "P1",
+    part: 2,
     kind: "partner",
-    q: "When tension shows up, the other person usually…",
+    q: "When tension shows up between you, they usually…",
     options: [
-      { t: "Leans into the conversation.", v: "engager" },
-      { t: "Wants time before talking.", v: "processor" },
-      { t: "Changes the subject.", v: "redirector" },
-      { t: "Pulls away for a while.", v: "fluctuator" },
+      { t: "Lean into the conversation", v: "engager" },
+      { t: "Ask for a bit of time before talking", v: "processor" },
+      { t: "Change the subject or keep it light", v: "redirector" },
+      { t: "Go distant — and you're never sure for how long", v: "fluctuator" },
     ],
   },
   {
-    section: 2,
+    id: "P2",
+    part: 2,
     kind: "partner",
-    q: "When you express a need, they usually…",
+    q: "When you bring up something you need, they usually…",
     options: [
-      { t: "Engage with it and take it seriously.", v: "engager" },
-      { t: "Need some space to think it over.", v: "processor" },
-      { t: "Brush it off or make it light.", v: "redirector" },
-      { t: "Respond differently each time.", v: "fluctuator" },
+      { t: "Engage with it and take it seriously", v: "engager" },
+      { t: "Need space to think it over, then come back", v: "processor" },
+      { t: "Brush it off or make a joke of it", v: "redirector" },
+      { t: "Respond differently every time", v: "fluctuator" },
     ],
   },
   {
-    section: 2,
+    id: "P3",
+    part: 2,
     kind: "partner",
     q: "When conflict happens, they usually…",
     options: [
-      { t: "Want to work it out right away.", v: "engager" },
-      { t: "Revisit it once they've cooled off.", v: "processor" },
-      { t: "Avoid it altogether.", v: "redirector" },
-      { t: "Get defensive, then go distant.", v: "fluctuator" },
+      { t: "Want to work it out right away", v: "engager" },
+      { t: "Cool off first, then come back to it", v: "processor" },
+      { t: "Avoid it altogether", v: "redirector" },
+      { t: "Get defensive, then go cold", v: "fluctuator" },
     ],
   },
   {
-    section: 2,
+    id: "P4",
+    part: 2,
     kind: "partner",
     q: "When things are going well, they usually…",
     options: [
-      { t: "Stay consistent and present.", v: "engager" },
-      { t: "Keep some of their independence.", v: "processor" },
-      { t: "Keep it light and avoid going deep.", v: "redirector" },
-      { t: "Become a little harder to read.", v: "fluctuator" },
+      { t: "Stay consistent and present", v: "engager" },
+      { t: "Stay connected while still keeping their own space", v: "processor" },
+      { t: "Keep it light and avoid going deep", v: "redirector" },
+      { t: "Become a little harder to read", v: "fluctuator" },
     ],
   },
   {
-    section: 2,
+    id: "P5",
+    part: 2,
     kind: "partner",
     q: "After a disagreement, they usually…",
     options: [
-      { t: "Reconnect and check that you're okay.", v: "engager" },
-      { t: "Take time, then come back to it.", v: "processor" },
-      { t: "Act like nothing happened.", v: "redirector" },
-      { t: "Run warm, then cold.", v: "fluctuator" },
-    ],
-  },
-
-  // ── Section 3 · THE PATTERN ──────────────────────────────────
-  {
-    section: 3,
-    kind: "pattern",
-    q: "Which feels most familiar between you two?",
-    options: [
-      { t: "One of us reaches while the other needs room.", v: "pursue-pause" },
-      { t: "We both tend to avoid the hard conversations.", v: "quiet-drift" },
-      { t: "One wants things defined; the other wants to keep it open.", v: "clarify-flex" },
-      { t: "One wants to talk it out now; the other needs time.", v: "direct-process" },
+      { t: "Reconnect and check that you're okay", v: "engager" },
+      { t: "Take time, then come back to it properly", v: "processor" },
+      { t: "Act like nothing happened", v: "redirector" },
+      { t: "Run warm, then cold", v: "fluctuator" },
     ],
   },
   {
-    section: 3,
-    kind: "pattern",
-    q: "When the relationship feels uncertain, you two tend to…",
+    id: "P6",
+    part: 2,
+    kind: "pdomain",
+    q: "When they're drained and nothing's wrong, they…",
     options: [
-      { t: "Move in opposite directions — one closer, one back.", v: "pursue-pause" },
-      { t: "Both go quiet and let it sit.", v: "quiet-drift" },
-      { t: "One pushes for reassurance, the other for space.", v: "reassure-space" },
-      { t: "One keeps investing while the other keeps options open.", v: "build-wander" },
+      { t: "Want to be close — unwind together", v: "p_contact" },
+      { t: "Reach for company; they refill around people", v: "p_contact" },
+      { t: "Want some quiet time to themselves", v: "p_solitude" },
+      { t: "Disappear into their own space until they're topped up", v: "p_solitude" },
     ],
   },
   {
-    section: 3,
-    kind: "pattern",
-    q: "When something good happens, the pattern is usually…",
+    id: "P7",
+    part: 2,
+    kind: "pdomain",
+    q: "When the “what are we?” question comes up, they…",
     options: [
-      { t: "One wants to define what it means; the other stays easy about it.", v: "clarify-flex" },
-      { t: "One celebrates close; the other needs a beat to themselves.", v: "reassure-space" },
-      { t: "We ride it together for a while, then one drifts.", v: "build-wander" },
-      { t: "One talks it through; the other needs to sit with it.", v: "direct-process" },
+      { t: "Want it defined clearly", v: "p_define" },
+      { t: "Are happy to name it out loud", v: "p_define" },
+      { t: "Would rather leave it open for now", v: "p_open" },
+      { t: "Prefer not to put a label on it at all", v: "p_open" },
     ],
   },
   {
-    section: 3,
-    kind: "pattern",
-    q: "The thing that most often trips you up:",
+    id: "P8",
+    part: 2,
+    kind: "pdomain",
+    q: "When bigger plans come up — a trip, moving in, timelines — they…",
     options: [
-      { t: "Reaching gets read as pressure; space gets read as distance.", v: "pursue-pause" },
-      { t: "Conversations tend to end unresolved.", v: "quiet-drift" },
-      { t: "Reassurance runs out before it lands.", v: "reassure-space" },
-      { t: "One wants a plan; the other wants to stay open.", v: "clarify-flex" },
+      { t: "Are all in — they like building toward things", v: "p_build" },
+      { t: "Get excited and start planning with you", v: "p_build" },
+      { t: "Prefer to let bigger plans unfold gradually", v: "p_present" },
+      { t: "Prefer to just enjoy what you have now", v: "p_present" },
     ],
   },
 ];
 
-// ── Ordering (also used for deterministic tie-breaks) ─────────
-export const youOrder: YouStyle[] = ["clarifier", "connector", "reflector", "adapter"];
-export const partnerOrder: PartnerStyle[] = ["engager", "processor", "redirector", "fluctuator"];
-export const dynamicOrder: DynamicSlug[] = [
-  "pursue-pause",
-  "reassure-space",
-  "direct-process",
-  "clarify-flex",
-  "build-wander",
-  "quiet-drift",
-];
-
-// ── you × partner → a base dynamic (a prior the pattern section refines) ──
-export const dynamicMatrix: Record<YouStyle, Record<PartnerStyle, DynamicSlug>> = {
-  clarifier: {
-    engager: "direct-process",
-    processor: "direct-process",
-    redirector: "clarify-flex",
-    fluctuator: "build-wander",
-  },
-  connector: {
-    engager: "reassure-space",
-    processor: "pursue-pause",
-    redirector: "pursue-pause",
-    fluctuator: "pursue-pause",
-  },
-  reflector: {
-    engager: "direct-process",
-    processor: "quiet-drift",
-    redirector: "quiet-drift",
-    fluctuator: "build-wander",
-  },
-  adapter: {
-    engager: "clarify-flex",
-    processor: "quiet-drift",
-    redirector: "quiet-drift",
-    fluctuator: "clarify-flex",
-  },
-};
-
-// ── Result shape (dimensional — room for partner comparison later) ──
+// ── Scoring ──────────────────────────────────────────────────
 export type QuizResult = {
   you: YouStyle;
+  you2?: YouStyle;
   them: PartnerStyle;
   dyn: DynamicSlug;
-  // raw tallies kept for future personalization / two-quiz comparison
-  scores: {
-    you: Record<YouStyle, number>;
-    them: Record<PartnerStyle, number>;
-    dyn: Record<DynamicSlug, number>;
-  };
+  dyn2?: DynamicSlug;
+  conf: number;
 };
 
-function argmax<T extends string>(tally: Record<T, number>, order: T[]): T {
-  let best = order[0];
-  for (const k of order) if ((tally[k] ?? 0) > (tally[best] ?? 0)) best = k;
-  return best;
-}
+type Dim = { pole: YouStyle; strength: number };
 
-/**
- * Turn the ordered picks (one string per question, in quiz order) into a result.
- * Kind is inferred from the quiz definition so the caller just passes values.
- */
+/** picks: one option value per question, in `quiz` order. */
 export function computeResult(picks: string[]): QuizResult {
-  const you = Object.fromEntries(youOrder.map((k) => [k, 0])) as Record<YouStyle, number>;
-  const them = Object.fromEntries(partnerOrder.map((k) => [k, 0])) as Record<PartnerStyle, number>;
-  const dyn = Object.fromEntries(dynamicOrder.map((k) => [k, 0])) as Record<DynamicSlug, number>;
-
-  picks.forEach((v, i) => {
-    const kind = quiz[i]?.kind;
-    if (kind === "you") you[v as YouStyle] = (you[v as YouStyle] ?? 0) + 1;
-    else if (kind === "partner") them[v as PartnerStyle] = (them[v as PartnerStyle] ?? 0) + 1;
-    else if (kind === "pattern") dyn[v as DynamicSlug] = (dyn[v as DynamicSlug] ?? 0) + 1;
+  const t: Record<string, number> = {
+    connector: 0,
+    reflector: 0,
+    decoder: 0,
+    flow: 0,
+    builder: 0,
+    wander: 0,
+    contact: 0,
+    solitude: 0,
+    engager: 0,
+    processor: 0,
+    redirector: 0,
+    fluctuator: 0,
+    p_contact: 0,
+    p_solitude: 0,
+    p_define: 0,
+    p_open: 0,
+    p_build: 0,
+    p_present: 0,
+  };
+  picks.forEach((v) => {
+    if (v in t) t[v] += 1;
   });
 
-  const youStyle = argmax(you, youOrder);
-  const partnerStyle = argmax(them, partnerOrder);
-
-  // Anchor with the observed you×them interaction (weight 2), let the
-  // pattern section (up to 4 votes) confirm or override it.
-  const base = dynamicMatrix[youStyle][partnerStyle];
-  dyn[base] += 2;
-  const dynamic = argmax(dyn, dynamicOrder);
-
-  return {
-    you: youStyle,
-    them: partnerStyle,
-    dyn: dynamic,
-    scores: { you, them, dyn },
+  // per-dimension pole + strength (3 questions each → 3-0 or 2-1; never tied)
+  const dim = (a: YouStyle, b: YouStyle): Dim => {
+    const pole = t[a] >= t[b] ? a : b;
+    const top = Math.max(t[a], t[b]);
+    return { pole, strength: top >= 3 ? 1 : 0.33 };
   };
+  const E = dim("connector", "reflector");
+  const C = dim("decoder", "flow");
+  const I = dim("builder", "wander");
+
+  // primary + secondary self archetype (tie-break: Engagement → Certainty → Investment)
+  const dims: Dim[] = [E, C, I];
+  const strong = dims.filter((d) => d.strength === 1);
+  const you: YouStyle = (strong[0] ?? E).pole;
+  const you2: YouStyle | undefined = strong.length >= 2 ? strong[1].pole : undefined;
+  const selfClarity = strong.length > 0 ? 1 : 0.33;
+
+  const userRecharge = t.contact >= t.solitude ? "contact" : "solitude";
+
+  // observed partner archetype
+  const pCounts: Record<PartnerStyle, number> = {
+    engager: t.engager,
+    processor: t.processor,
+    redirector: t.redirector,
+    fluctuator: t.fluctuator,
+  };
+  const pMax = Math.max(...partnerOrder.map((k) => pCounts[k]));
+  const distinct = partnerOrder.filter((k) => pCounts[k] > 0).length;
+  let them: PartnerStyle;
+  let partnerClarity: number;
+  if (pMax <= 2 && distinct >= 3) {
+    them = "fluctuator";
+    partnerClarity = 0.5;
+  } else {
+    them = partnerOrder[0];
+    for (const k of partnerOrder) if (pCounts[k] > pCounts[them]) them = k;
+    partnerClarity = Math.min(1, pMax / 3);
+  }
+
+  // domain mismatches (binary)
+  const partnerRecharge = t.p_contact >= t.p_solitude ? "contact" : "solitude";
+  const mRecharge = userRecharge !== partnerRecharge ? 1 : 0;
+
+  const partnerDefine = t.p_define >= t.p_open ? "define" : "open";
+  const userDefine = C.pole === "decoder" ? "define" : "open";
+  const mCertainty = userDefine !== partnerDefine ? 1 : 0;
+
+  const partnerBuild = t.p_build >= t.p_present ? "build" : "present";
+  const userBuild = I.pole === "builder" ? "build" : "present";
+  const mInvestment = userBuild !== partnerBuild ? 1 : 0;
+
+  // dynamic scores
+  const s: Record<DynamicSlug, number> = {
+    "pursue-pause": 0,
+    "quiet-drift": 0,
+    "direct-process": 0,
+    "clarify-flex": 0,
+    "build-wander": 0,
+    "reassure-space": 0,
+  };
+  const withdraws = them === "processor" || them === "redirector" || them === "fluctuator";
+
+  if (E.pole === "connector" && withdraws) s["pursue-pause"] += 2 * E.strength;
+  if (C.pole === "decoder" && (them === "redirector" || them === "fluctuator"))
+    s["pursue-pause"] += 2 * C.strength;
+
+  if (E.pole === "reflector" && (them === "processor" || them === "redirector"))
+    s["quiet-drift"] += 2 * E.strength;
+  if (E.pole === "reflector" && them === "fluctuator") s["quiet-drift"] += 1 * E.strength;
+  if (userRecharge === "solitude" && partnerRecharge === "solitude") s["quiet-drift"] += 0.5;
+
+  if (C.pole === "decoder" && them === "processor") s["direct-process"] += 2 * C.strength;
+  if (E.pole === "reflector" && them === "engager") s["direct-process"] += 2 * E.strength;
+  if (C.pole === "decoder" && them === "engager") s["direct-process"] += 1 * C.strength;
+  if (E.pole === "connector" && them === "engager") s["direct-process"] += 0.5;
+
+  s["reassure-space"] += 2 * mRecharge;
+  s["clarify-flex"] += 2 * mCertainty * C.strength;
+  s["build-wander"] += 2 * mInvestment * I.strength;
+
+  // rank (ties break by dynamicOrder: style before domain)
+  const ranked = [...dynamicOrder].sort((a, b) => {
+    if (s[b] !== s[a]) return s[b] - s[a];
+    return dynamicOrder.indexOf(a) - dynamicOrder.indexOf(b);
+  });
+  const dyn = ranked[0];
+  const runnerUp = ranked[1];
+  const dyn2 = s[runnerUp] > 0 && s[runnerUp] >= 0.5 * s[dyn] ? runnerUp : undefined;
+
+  const globalClarity = (selfClarity + partnerClarity) / 2;
+  const conf = Math.max(1, Math.min(99, Math.round(100 * (s[dyn] / 2.5) * globalClarity)));
+
+  return { you, you2, them, dyn, dyn2, conf };
 }
 
-// Convenience for building/validating result URLs
-export function isYouStyle(x: string): x is YouStyle {
-  return (youOrder as string[]).includes(x);
-}
-export function isPartnerStyle(x: string): x is PartnerStyle {
-  return (partnerOrder as string[]).includes(x);
-}
-export function isDynamicSlug(x: string): x is DynamicSlug {
-  return (dynamicOrder as string[]).includes(x);
-}
-
-// ── Content: YOU styles ───────────────────────────────────────
+// ── Profiles ─────────────────────────────────────────────────
 export type YouProfile = {
   slug: YouStyle;
   name: string;
@@ -421,18 +504,6 @@ export type YouProfile = {
 };
 
 export const youProfiles: Record<YouStyle, YouProfile> = {
-  clarifier: {
-    slug: "clarifier",
-    name: "The Clarifier",
-    tagline: "You feel steadier when things are clear.",
-    blurb:
-      "You like knowing where you stand. When something's ambiguous, you want to name it and talk it through — not to control it, but because clarity is how you feel safe and close.",
-    signs: [
-      "You'd rather name the awkward thing than let it linger.",
-      "Unanswered questions sit heavy with you.",
-      "You often think in terms of “where are we?”",
-    ],
-  },
   connector: {
     slug: "connector",
     name: "The Connector",
@@ -457,21 +528,56 @@ export const youProfiles: Record<YouStyle, YouProfile> = {
       "Space helps you come back clearer, not colder.",
     ],
   },
-  adapter: {
-    slug: "adapter",
-    name: "The Adapter",
-    tagline: "You flex to keep things smooth.",
+  decoder: {
+    slug: "decoder",
+    name: "The Decoder",
+    tagline: "Understanding is how you relax.",
     blurb:
-      "You're attuned to the other person and quick to adjust. You'd often rather bend a little than create friction — which keeps the peace, but can leave your own read of things unspoken.",
+      "You like knowing where you stand. When something's unclear, you move toward it — you'd rather name the thing than let it hang in the air. Clarity is how the ground goes solid.",
     signs: [
-      "You adjust to what the moment seems to need.",
-      "You downplay small wants to avoid friction.",
-      "You track everyone's comfort before your own.",
+      "You'd rather ask than assume.",
+      "Unanswered questions sit heavy with you.",
+      "Once it's named, you can stop wondering and enjoy it.",
+    ],
+  },
+  flow: {
+    slug: "flow",
+    name: "The Flow",
+    tagline: "You trust what you're living more than the label on it.",
+    blurb:
+      "You find your certainty by living something, not by naming it. It isn't indecision — you often know exactly how you feel. You'd just rather let it become what it is.",
+    signs: [
+      "You don't need a label to know something's real.",
+      "Naming things too early can feel like freezing them.",
+      "You trust what's actually happening between you.",
+    ],
+  },
+  builder: {
+    slug: "builder",
+    name: "The Builder",
+    tagline: "Building toward something is how you feel close.",
+    blurb:
+      "You feel a relationship most when it's going somewhere. Plans aren't logistics to you — they're a kind of intimacy, proof you're pointed the same way.",
+    signs: [
+      "You turn “someday” into a date on the calendar.",
+      "A future you can picture makes the present feel solid.",
+      "Momentum is how you love.",
+    ],
+  },
+  wander: {
+    slug: "wander",
+    name: "The Wander",
+    tagline: "You don't want to miss the life that's already happening.",
+    blurb:
+      "You feel the relationship most in the living of it. It's not that you don't care about the future — your attention just settles into the now, where it's actually happening.",
+    signs: [
+      "You notice the good thing while it's happening.",
+      "A good today is the strongest promise there is.",
+      "You'd rather be in the moment than looking past it.",
     ],
   },
 };
 
-// ── Content: PARTNER styles (observational — never a diagnosis) ──
 export type PartnerProfile = {
   slug: PartnerStyle;
   name: string;
@@ -528,196 +634,5 @@ export const partnerProfiles: Record<PartnerStyle, PartnerProfile> = {
       "You often feel unsure where you stand.",
       "Closeness is frequently followed by a pull-back.",
     ],
-  },
-};
-
-// ── Content: DYNAMICS (the hero of the result) ────────────────
-export type Dynamic = {
-  slug: DynamicSlug;
-  name: string;
-  poles: string;
-  tagline: string;
-  whatHappens: string;
-  protect: { label: string; text: string }[];
-  strengths: string;
-  friction: string;
-  watchFor: string;
-  help: { signal: string; reach: string; steady: string };
-};
-
-export const dynamics: Record<DynamicSlug, Dynamic> = {
-  "pursue-pause": {
-    slug: "pursue-pause",
-    name: "Pursue & Pause",
-    poles: "One reaches ↔ One needs room",
-    tagline: "When one moves closer, the other needs space — and both moves get misread.",
-    whatHappens:
-      "One of you tends to close the distance when things feel uncertain; the other tends to open it. The reach and the retreat feed each other — the more one pursues, the more the other steps back, and the more one steps back, the more the other reaches.",
-    protect: [
-      {
-        label: "The one who reaches",
-        text: "is usually protecting the connection — trying to keep it from quietly slipping away.",
-      },
-      {
-        label: "The one who pauses",
-        text: "is usually protecting their footing — trying not to react before they feel steady.",
-      },
-    ],
-    strengths:
-      "At its best, this pair balances each other: the reacher brings warmth and momentum, the pauser brings calm and perspective. You can be both close and grounded.",
-    friction:
-      "Under stress, the timing collides. Reaching lands as pressure; needing space lands as rejection. Neither is the intent — but that's how it gets felt.",
-    watchFor:
-      "Notice the exact moment the chase or the retreat kicks in. Naming it out loud — “I think I'm reaching and you're needing room” — usually defuses it faster than solving the surface issue.",
-    help: {
-      signal: "Catch the push-pull in the moment, before it spirals.",
-      reach: "Put words to the reach or the retreat so it stops getting misread.",
-      steady: "Watch how often the cycle repeats — and where it tends to start.",
-    },
-  },
-  "reassure-space": {
-    slug: "reassure-space",
-    name: "Reassure & Reset",
-    poles: "One seeks closeness ↔ One recharges alone",
-    tagline: "Same care, opposite settings: one feels close through contact, the other through space.",
-    whatHappens:
-      "One of you feels secure through connection and reassurance; the other feels secure through independence and time alone. Both are ways of caring — they just pull in opposite directions when stress shows up.",
-    protect: [
-      {
-        label: "The one seeking reassurance",
-        text: "is protecting the bond — making sure you're still okay with each other.",
-      },
-      {
-        label: "The one taking space",
-        text: "is protecting their capacity — recharging so they can actually show up.",
-      },
-    ],
-    strengths:
-      "You can offer each other what neither does naturally — one models steady closeness, the other models self-sufficiency. In balance, you get intimacy without losing yourselves in it.",
-    friction:
-      "Reassurance can feel never-enough to one and demanding to the other. Space can feel restorative to one and abandoning to the other.",
-    watchFor:
-      "Reassurance lands better when it's specific and freely given, not pulled out under stress. Space lands better when it comes with a return time. Watch for one person always asking while the other always withdraws.",
-    help: {
-      signal: "Name what you actually need — contact or a breather — instead of guessing.",
-      reach: "Ask for reassurance or space in a way the other can actually receive.",
-      steady: "See whether the ask-and-withdraw loop is easing or tightening over time.",
-    },
-  },
-  "direct-process": {
-    slug: "direct-process",
-    name: "Direct & Process",
-    poles: "One talks it out now ↔ One needs time",
-    tagline: "The gap isn't how much you care — it's timing.",
-    whatHappens:
-      "One of you wants to address things in the moment; the other needs time before they can engage well. When a hard topic lands, one leans in and the other needs to step back first.",
-    protect: [
-      {
-        label: "The direct one",
-        text: "is protecting against things festering — wanting to clear the air while it's fresh.",
-      },
-      {
-        label: "The one who processes",
-        text: "is protecting the quality of their response — not wanting to say something half-formed.",
-      },
-    ],
-    strengths:
-      "Direct energy keeps issues from being buried; processing keeps reactions from running the show. Together you can be both honest and considered.",
-    friction:
-      "Pressing for resolution now can overwhelm the processor. Needing time can feel like stonewalling to the direct one.",
-    watchFor:
-      "A simple agreement helps: name the issue now, set a time to finish it. Watch for the reach-during-a-pause moment — that's usually where it goes sideways.",
-    help: {
-      signal: "Get the issue out of your head so it can wait without festering.",
-      reach: "Say the hard thing cleanly — and ask for the timing you each need.",
-      steady: "Notice whether “later” actually comes, or quietly never does.",
-    },
-  },
-  "clarify-flex": {
-    slug: "clarify-flex",
-    name: "Clarify & Flex",
-    poles: "One wants it defined ↔ One wants it open",
-    tagline: "One finds safety in a plan; the other finds safety in keeping options open.",
-    whatHappens:
-      "One of you wants things named, defined, and settled. The other prefers to keep things open and go with how it feels. Certainty versus flexibility becomes the quiet tug-of-war.",
-    protect: [
-      {
-        label: "The one wanting clarity",
-        text: "is protecting against uncertainty — needing to know it's real.",
-      },
-      {
-        label: "The one wanting flexibility",
-        text: "is protecting freedom — not wanting to be boxed in before they're ready.",
-      },
-    ],
-    strengths:
-      "The clarifier keeps things from drifting; the flexible one keeps things from going rigid. Together you can commit without over-controlling it.",
-    friction:
-      "Pushing for definition can feel like pressure; staying open can feel like avoidance. Each can read the other as “too much” or “not enough.”",
-    watchFor:
-      "Look for the topics where one always pushes to define and the other always keeps it loose. Naming what each of you needs certainty about — and where you can stay flexible — beats forcing one mode.",
-    help: {
-      signal: "Get clear on what you actually need defined versus what can stay open.",
-      reach: "Ask for clarity — or for room — without it sounding like an ultimatum.",
-      steady: "Track where the certainty-vs-open tension keeps showing up.",
-    },
-  },
-  "build-wander": {
-    slug: "build-wander",
-    name: "Build & Wander",
-    poles: "One builds ↔ One keeps options open",
-    tagline: "One wants to build something steady; the other pulls toward open road.",
-    whatHappens:
-      "One of you is oriented toward building — consistency, plans, a shared direction. The other is oriented toward independence and keeping options open. You're often moving at different speeds toward different horizons.",
-    protect: [
-      {
-        label: "The one building",
-        text: "is protecting the future — investing in something meant to last.",
-      },
-      {
-        label: "The one wandering",
-        text: "is protecting autonomy — not wanting to lose themselves inside it.",
-      },
-    ],
-    strengths:
-      "The builder brings stability and follow-through; the wanderer brings freshness and keeps things from going stale. In balance, you grow without stagnating.",
-    friction:
-      "Investment can feel like a cage to one; independence can feel like one foot out the door to the other. It usually shows up around commitment and consistency.",
-    watchFor:
-      "Watch whether investment and independence are trending toward each other or away. The question worth sitting with: are you building the same thing, at a pace you can both live with?",
-    help: {
-      signal: "See what you're each actually reaching for — roots or room.",
-      reach: "Say what you want out loud instead of hoping it becomes obvious.",
-      steady: "Watch the gap between your pace and theirs over time.",
-    },
-  },
-  "quiet-drift": {
-    slug: "quiet-drift",
-    name: "The Quiet Drift",
-    poles: "Both tend to step back",
-    tagline: "When neither of you steps toward the hard conversation, things go unspoken.",
-    whatHappens:
-      "Neither of you loves conflict, so hard topics get set aside “for later” — and later rarely comes. Things stay pleasant on the surface while small unspoken things quietly accumulate.",
-    protect: [
-      {
-        label: "Both of you",
-        text: "are protecting the peace — avoiding the friction a hard conversation might bring.",
-      },
-      {
-        label: "Underneath",
-        text: "the cost is distance: what goes unsaid slowly becomes what goes unfelt.",
-      },
-    ],
-    strengths:
-      "You're rarely explosive and you give each other a lot of room. Calm is a real gift — as long as it isn't quietly doing the job of avoidance.",
-    friction:
-      "Resentment builds in the gaps. Because nothing gets named, nothing gets resolved, and the connection can cool without a clear reason.",
-    watchFor:
-      "The pattern to watch is the conversation that keeps getting postponed. One low-stakes, on-purpose hard conversation can reverse a surprising amount of drift.",
-    help: {
-      signal: "Get the unspoken thing onto the page where you can actually see it.",
-      reach: "Draft the conversation you keep putting off — for you, first.",
-      steady: "Notice how much is going unsaid, before it becomes unfelt.",
-    },
   },
 };
