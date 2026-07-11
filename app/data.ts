@@ -371,6 +371,12 @@ export type QuizResult = {
   conf: number;
 };
 
+/* Calibration: style dynamics carry denser evidence (11 questions) than a domain
+   signal (2 questions), so they weigh more. Validated across the 12-persona suite —
+   eliminates the Pursue&Pause / Reassure&Reset tie without regressing clean cases. */
+const W_STYLE = 2.4;
+const W_DOMAIN = 2.0;
+
 type Dim = { pole: YouStyle; strength: number };
 
 /** picks: one option value per question, in `quiz` order. */
@@ -461,23 +467,23 @@ export function computeResult(picks: string[]): QuizResult {
   };
   const withdraws = them === "processor" || them === "redirector" || them === "fluctuator";
 
-  if (E.pole === "connector" && withdraws) s["pursue-pause"] += 2 * E.strength;
+  if (E.pole === "connector" && withdraws) s["pursue-pause"] += W_STYLE * E.strength;
   if (C.pole === "decoder" && (them === "redirector" || them === "fluctuator"))
-    s["pursue-pause"] += 2 * C.strength;
+    s["pursue-pause"] += W_STYLE * C.strength;
 
   if (E.pole === "reflector" && (them === "processor" || them === "redirector"))
-    s["quiet-drift"] += 2 * E.strength;
+    s["quiet-drift"] += W_STYLE * E.strength;
   if (E.pole === "reflector" && them === "fluctuator") s["quiet-drift"] += 1 * E.strength;
   if (userRecharge === "solitude" && partnerRecharge === "solitude") s["quiet-drift"] += 0.5;
 
-  if (C.pole === "decoder" && them === "processor") s["direct-process"] += 2 * C.strength;
-  if (E.pole === "reflector" && them === "engager") s["direct-process"] += 2 * E.strength;
+  if (C.pole === "decoder" && them === "processor") s["direct-process"] += W_STYLE * C.strength;
+  if (E.pole === "reflector" && them === "engager") s["direct-process"] += W_STYLE * E.strength;
   if (C.pole === "decoder" && them === "engager") s["direct-process"] += 1 * C.strength;
   if (E.pole === "connector" && them === "engager") s["direct-process"] += 0.5;
 
-  s["reassure-space"] += 2 * mRecharge;
-  s["clarify-flex"] += 2 * mCertainty * C.strength;
-  s["build-wander"] += 2 * mInvestment * I.strength;
+  s["reassure-space"] += W_DOMAIN * mRecharge;
+  s["clarify-flex"] += W_DOMAIN * mCertainty * C.strength;
+  s["build-wander"] += W_DOMAIN * mInvestment * I.strength;
 
   // rank (ties break by dynamicOrder: style before domain)
   const ranked = [...dynamicOrder].sort((a, b) => {
