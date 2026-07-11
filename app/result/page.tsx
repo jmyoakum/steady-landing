@@ -22,7 +22,17 @@ function read(searchParams: SP) {
   const them = one(searchParams.them);
   const dyn = one(searchParams.dyn);
   if (!isYouStyle(you) || !isPartnerStyle(them) || !isDynamicSlug(dyn)) return null;
-  return { you, them, dyn };
+
+  /* Secondaries are optional and must never break the page. They're dropped unless
+     they're valid AND actually distinct from the primary — a hand-edited URL like
+     `?you=connector&you2=connector` should render exactly like today, not "you also
+     lean Connector". Absent secondaries simply don't render; nothing else moves. */
+  const y2 = one(searchParams.you2);
+  const d2 = one(searchParams.dyn2);
+  const you2 = isYouStyle(y2) && y2 !== you ? y2 : undefined;
+  const dyn2 = isDynamicSlug(d2) && d2 !== dyn ? d2 : undefined;
+
+  return { you, them, dyn, you2, dyn2 };
 }
 
 export function generateMetadata({ searchParams }: { searchParams: SP }): Metadata {
@@ -31,6 +41,7 @@ export function generateMetadata({ searchParams }: { searchParams: SP }): Metada
   const c = resultContent[r.dyn as DynamicSlug];
   // OG cards are served immutable/1yr — bump OG_V whenever the card art or labels change
   // so social scrapers fetch a fresh cache key instead of a stale card.
+  // Secondaries deliberately do NOT affect metadata: the share card stays one dynamic.
   const image = `${SITE}/api/og?dyn=${r.dyn}&v=${OG_V}`;
   return {
     title: `${c.name} — your relationship dynamic`,
@@ -100,6 +111,17 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
   const them = partnerProfiles[r.them];
   const imageUrl = `/api/og?dyn=${r.dyn}&v=${OG_V}`;
 
+  /* Secondaries. Both reuse copy that already ships — youProfiles[].tagline and
+     resultContent[].snapshot — so nothing new had to be written for either. */
+  const you2 = r.you2 ? youProfiles[r.you2] : undefined;
+  const c2 = r.dyn2 ? resultContent[r.dyn2 as DynamicSlug] : undefined;
+  /* "The Decoder" → "Decoder": reads as a lean, not a second label. */
+  const you2Short = you2?.name.replace(/^The\s+/, "");
+  /* Taglines are standalone sentences ("Understanding is how you relax."). Dropped in
+     after an em dash they need a lowercase lead-in, or we get "— You need a little
+     room…" straight after "You also lean Reflector". No proper nouns occur here. */
+  const you2Tagline = you2 && you2.tagline.charAt(0).toLowerCase() + you2.tagline.slice(1);
+
   return (
     <div className="relative z-[2]">
       <SiteHeader joinHref="#join" />
@@ -148,6 +170,27 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
               </p>
             ))}
           </div>
+
+          {/* Also in the mix — the closing beat of this section, not a new one.
+              It lands only after the primary dynamic has been fully argued, and its
+              name sits at text-xl: below the archetype h2s in section 3 and far below
+              the hero, so it cannot read as a second headline. Fires for roughly half
+              of all results; when dyn2 is absent this section renders exactly as
+              before. Same left-clay-rule treatment as "What tends to help" (§5), so
+              it reads as an established page element, not a new component. */}
+          {c2 && (
+            <div className="mt-10 rounded-2xl border-l-[3px] border-clay bg-paper p-5 shadow-sm sm:mt-11 sm:p-6">
+              <Kicker>Also in the mix</Kicker>
+              <p className="mt-2 text-xl font-extrabold leading-snug text-ink">{c2.name}</p>
+              <p className="mt-2.5 text-[1.0625rem] leading-relaxed text-inkSoft">{c2.snapshot}</p>
+              <p className="mt-4 text-[15px] leading-relaxed text-inkFaint">
+                Your answers pointed hardest at{" "}
+                <span className="font-semibold text-inkSoft">{c.name}</span> — but this one kept
+                showing up right behind it. It&apos;s not a second result. It&apos;s the other
+                thing that&apos;s live between you.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -162,6 +205,14 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
             <div data-reveal className="rounded-2xl border border-line bg-cream p-5 shadow-sm sm:p-6">
               <Kicker>Your side</Kicker>
               <h2 className="mt-2 text-xl font-extrabold text-ink sm:text-2xl">{you.name}</h2>
+              {/* The second lean. One muted line, existing tagline, no new copy.
+                  Fires for ~15% of results; absent, the card is unchanged. */}
+              {you2 && (
+                <p className="mt-1.5 text-sm leading-relaxed text-inkFaint">
+                  You also lean{" "}
+                  <span className="font-semibold text-inkSoft">{you2Short}</span> — {you2Tagline}
+                </p>
+              )}
               <p className="mt-3 leading-relaxed text-inkSoft">{c.yourSide}</p>
             </div>
 
