@@ -181,7 +181,13 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
           {c2 && (
             <div className="mt-10 rounded-2xl border-l-[3px] border-clay bg-paper p-5 shadow-sm sm:mt-11 sm:p-6">
               <Kicker>Also in the mix</Kicker>
-              <p className="mt-2 text-xl font-extrabold leading-snug text-ink">{c2.name}</p>
+              {/* text-lg on mobile, not text-xl: the archetype h2s in §3 step DOWN to
+                  text-xl (20px) on small screens, so a fixed text-xl here would sit at
+                  exactly their size and flatten the hierarchy on the screen that matters
+                  most. One step below them at each breakpoint: 18/20 vs their 20/24. */}
+              <p className="mt-2 text-lg font-extrabold leading-snug text-ink sm:text-xl">
+                {c2.name}
+              </p>
               <p className="mt-2.5 text-[1.0625rem] leading-relaxed text-inkSoft">{c2.snapshot}</p>
               <p className="mt-4 text-[15px] leading-relaxed text-inkFaint">
                 Your answers pointed hardest at{" "}
