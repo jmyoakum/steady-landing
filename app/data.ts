@@ -488,8 +488,17 @@ export function computeResult(picks: string[]): QuizResult {
   const runnerUp = ranked[1];
   const dyn2 = s[runnerUp] > 0 && s[runnerUp] >= 0.5 * s[dyn] ? runnerUp : undefined;
 
+  // Confidence must fall when the primary barely beats the runner-up — otherwise a
+  // 4-way tie broken by array order would still report "High".
+  const s1 = s[dyn];
+  const s2 = s[runnerUp];
+  const gapRatio = s1 > 0 ? (s1 - s2) / s1 : 0; // 1 = clean win · 0 = dead tie
+  const gapFactor = 0.55 + 0.45 * gapRatio;
   const globalClarity = (selfClarity + partnerClarity) / 2;
-  const conf = Math.max(1, Math.min(99, Math.round(100 * (s[dyn] / 2.5) * globalClarity)));
+  const conf = Math.max(
+    1,
+    Math.min(99, Math.round(100 * (s1 / 2.5) * globalClarity * gapFactor))
+  );
 
   return { you, you2, them, dyn, dyn2, conf };
 }
