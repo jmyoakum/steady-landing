@@ -23,7 +23,15 @@ export default function QuizPage() {
 
   /* One shuffled option order per question, computed once and frozen for the
      whole session — so going Back shows the same order it did the first time. */
-  const [orders] = useState<number[][]>(() => quiz.map((q) => shuffled(q.options.length)));
+  const [orders] = useState<number[][]>(() => {
+    // ?fixed=1 disables the shuffle so answers can be tested by position (QA only).
+    const fixed =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("fixed") === "1";
+    return quiz.map((q) =>
+      fixed ? q.options.map((_, i) => i) : shuffled(q.options.length)
+    );
+  });
 
   /* HOVER ARMING.
      The quiz has no "selected" state — answering advances immediately. But the
