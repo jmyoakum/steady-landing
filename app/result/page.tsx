@@ -12,6 +12,7 @@ import { resultContent } from "./content";
 import { ShareButton, ShareRow, ShareFab } from "./ShareControls";
 
 const SITE = "https://www.staysteady.io";
+const OG_V = "2"; // bump on any share-card change
 
 type SP = { [key: string]: string | string[] | undefined };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -28,7 +29,9 @@ export function generateMetadata({ searchParams }: { searchParams: SP }): Metada
   const r = read(searchParams);
   if (!r) return { title: "Your relationship dynamic — Steady" };
   const c = resultContent[r.dyn as DynamicSlug];
-  const image = `${SITE}/api/og?dyn=${r.dyn}`;
+  // OG cards are served immutable/1yr — bump OG_V whenever the card art or labels change
+  // so social scrapers fetch a fresh cache key instead of a stale card.
+  const image = `${SITE}/api/og?dyn=${r.dyn}&v=${OG_V}`;
   return {
     title: `${c.name} — your relationship dynamic`,
     description: c.snapshot,
@@ -95,7 +98,7 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
   const c = resultContent[r.dyn as DynamicSlug];
   const you = youProfiles[r.you];
   const them = partnerProfiles[r.them];
-  const imageUrl = `/api/og?dyn=${r.dyn}`;
+  const imageUrl = `/api/og?dyn=${r.dyn}&v=${OG_V}`;
 
   return (
     <div className="relative z-[2]">
