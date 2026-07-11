@@ -62,7 +62,7 @@ export function GET(req: Request) {
             fontWeight: 600,
           }}
         >
-          {c.poles}
+          {c.poles.replace(/\u2194/g, "\u00b7")}
         </div>
 
         <div
