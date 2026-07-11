@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SiteHeader, Footer } from "../shared";
 import { quiz, partMeta, computeResult } from "../data";
@@ -25,7 +25,39 @@ export default function QuizPage() {
      whole session — so going Back shows the same order it did the first time. */
   const [orders] = useState<number[][]>(() => quiz.map((q) => shuffled(q.options.length)));
 
+  /* HOVER ARMING.
+     The quiz has no "selected" state — answering advances immediately. But the
+     physical cursor stays where it was, so on the next question the button that
+     happens to sit under it picks up :hover styling and *looks* pre-selected.
+     Because the option block shifts vertically between questions (the part-intro
+     card, wrapped question text), it lands on a button sometimes and in a gap
+     other times — which is why it only happened on some questions.
+     Fix: hover styles are suppressed until the pointer actually moves again. */
+  const [armed, setArmed] = useState(true);
+
+  useEffect(() => {
+    if (armed) return;
+    const arm = () => setArmed(true);
+    window.addEventListener("pointermove", arm, { once: true, passive: true });
+    window.addEventListener("keydown", arm, { once: true });
+    // touch/pen have no hover at all — re-arm quickly so nothing feels dead
+    const t = window.setTimeout(arm, 350);
+    return () => {
+      window.removeEventListener("pointermove", arm);
+      window.removeEventListener("keydown", arm);
+      window.clearTimeout(t);
+    };
+  }, [armed]);
+
+  /* Same stationary-cursor geometry means a fast double-click could land on the
+     NEXT question's button and answer it unseen. Ignore a second fire <250ms. */
+  const lastChoiceAt = useRef(0);
+
   function choose(v: string) {
+    const now = Date.now();
+    if (now - lastChoiceAt.current < 250) return;
+    lastChoiceAt.current = now;
+
     const next = [...picks, v];
     if (step + 1 >= quiz.length) {
       const r = computeResult(next);
@@ -42,6 +74,7 @@ export default function QuizPage() {
     }
     setPicks(next);
     setStep(step + 1);
+    setArmed(false);
   }
 
   function back() {
@@ -51,6 +84,7 @@ export default function QuizPage() {
     }
     setPicks(picks.slice(0, -1));
     setStep(step - 1);
+    setArmed(false);
   }
 
   const q = quiz[step];
@@ -58,6 +92,10 @@ export default function QuizPage() {
   const meta = partMeta[q?.part ?? 1];
   const isPartStart = step === 0 || quiz[step - 1]?.part !== q?.part;
   const shown = orders[step].map((i) => q.options[i]);
+
+  const optionBase =
+    "rounded-2xl border border-line bg-cream px-5 py-4 text-left text-lg text-ink shadow-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-clay active:translate-y-px";
+  const optionHover = armed ? " hover:border-clay hover:bg-paper hover:shadow-md" : "";
 
   return (
     <div className="relative z-[2] min-h-screen">
@@ -132,7 +170,7 @@ export default function QuizPage() {
                       e.currentTarget.blur();
                       choose(opt.v);
                     }}
-                    className="rounded-2xl border border-line bg-cream px-5 py-4 text-left text-lg text-ink shadow-sm outline-none transition-all hover:border-clay hover:bg-paper hover:shadow-md focus-visible:ring-2 focus-visible:ring-clay active:translate-y-px"
+                    className={optionBase + optionHover}
                   >
                     {opt.t}
                   </button>
