@@ -144,7 +144,7 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
   },
 
   "clarify-flex": {
-    name: "Decoder & Flow",
+    name: "Define & Flow",
     poles: "one wants it defined ↔ one wants it open",
     snapshot:
       "One of you feels steadier once you can name what this is. The other feels steadier letting it become what it is. You're both after the same certainty — you just build it in opposite directions.",
