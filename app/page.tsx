@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { SiteHeader, Footer, WaitlistForm, RevealScript } from "./shared";
+import { StickyQuizBar } from "./components/StickyQuizBar";
 import { framework } from "./data";
 
 function TrustItem({
@@ -27,7 +28,7 @@ function TrustItem({
 export default function Home() {
   return (
     <div className="relative z-[2]">
-      <SiteHeader joinHref="#join" />
+      <SiteHeader ctaHref="/quiz" ctaLabel="Take the quiz" />
 
       {/* Hero */}
       <section className="px-5 pb-10 pt-12 sm:pt-16">
@@ -41,16 +42,17 @@ export default function Home() {
           </h1>
 
           <p className="mt-5 text-lg leading-relaxed text-inkSoft">
-            Every relationship has a dynamic. Steady helps you recognize yours —
-            so you can understand each other better and navigate it with
-            confidence.
+            Every relationship runs on a pattern. Steady shows you yours — the
+            loop you and your person keep repeating, and where it can be
+            interrupted.
           </p>
 
-          {/* THE QUIZ IS THE PRIMARY CTA, and it now sits above the email form.
-              It used to be the other way round: on a phone a stranger saw an email
-              box at 624px and the quiz CTA at 847px — below the fold. We were asking
-              for an address eleven seconds in, before giving anything. The quiz IS
-              the value; the waitlist is the ask. Give first. */}
+          {/* THE QUIZ IS THE ONLY ASK ABOVE THE FOLD.
+              Demoting the email form below the quiz was the right direction but
+              a half-measure: it still put an email box in the hero, competing
+              for the same attention. The quiz IS the value; the waitlist is the
+              ask. Give first, ask later — the ask now lives at #join and on the
+              result page, where the reader has actually felt something. */}
           <div className="mt-7 rounded-3xl border border-clay/30 bg-paper px-6 py-7 text-center shadow-sm sm:px-10">
             <p className="font-hand text-3xl text-clayDeep">
               Discover your relationship dynamic.
@@ -59,7 +61,7 @@ export default function Home() {
               href="/quiz"
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-clay px-8 py-4 text-lg font-bold text-cream shadow-md transition-all hover:bg-clayDeep hover:shadow-lg active:translate-y-px"
             >
-              Take the Quiz →
+              See your pattern →
             </a>
             <p className="mt-3 text-sm text-inkFaint">
               18 quick questions · about 2 minutes
@@ -67,18 +69,7 @@ export default function Home() {
             <p className="mt-1 text-sm font-bold text-clayDeep">Free. No sign-up.</p>
           </div>
 
-          {/* The email ask, demoted to a secondary action below the quiz. */}
-          <div className="mt-7 max-w-md">
-            <p className="mb-2 text-sm font-semibold text-inkSoft">
-              Or join the beta waitlist:
-            </p>
-            <WaitlistForm cta="Join the Waitlist" location="home_hero" />
-            <p className="mt-2.5 text-sm text-inkFaint">
-              Early access, no spam, leave whenever.
-            </p>
-          </div>
-
-          {/* Emotional visual — below the CTAs */}
+          {/* Emotional visual — below the CTA */}
           <div className="relative mt-10">
             <div className="floaty-slow absolute -left-1 -top-3 z-10 rounded-2xl bg-cream px-3 py-2 text-xs shadow-md sm:text-sm">
               What&apos;s really going on here?
@@ -121,6 +112,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Is it you… or is it the pattern?
+          The hero hooks on the felt experience ("they keep pulling away") — that
+          framing is the strongest acquisition hook we have, and the h1 keeps it.
+          This section is the pivot: it takes the reader from "whose fault is
+          this" to "what's the loop", which is the frame the quiz answers. Hook
+          to enter, reframe to convert. */}
+      <section id="pattern" className="bg-paper px-5 py-16">
+        <div data-reveal className="mx-auto max-w-read">
+          <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-4xl">
+            Is it you&hellip;{" "}
+            <span className="text-clayDeep">or is it the pattern?</span>
+          </h2>
+
+          <div className="mt-6 space-y-5 text-lg leading-relaxed text-inkSoft">
+            <p>
+              Every answer you&apos;ve been given makes you pick a side. Either
+              you&apos;re too much — too anxious, too needy, too available. Or
+              they&apos;re the problem — avoidant, emotionally unavailable, not
+              ready.
+            </p>
+            <p>Neither one explains why it keeps happening.</p>
+            <p>
+              You reach. They pause. Their pause makes you reach harder. Your
+              reaching makes them pause longer. Two reasonable people, one loop,
+              and nobody is driving it.
+            </p>
+          </div>
+
+          <p className="mt-7 text-xl font-bold leading-snug text-ink sm:text-2xl">
+            Most people try to work out what&apos;s wrong with you, or
+            what&apos;s wrong with them. Steady shows you what&apos;s happening
+            between you — and that&apos;s the part you can actually change.
+          </p>
+
+          <div className="mt-8">
+            <a
+              href="/quiz"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-base font-bold text-cream shadow-sm transition-all hover:bg-clayDeep hover:shadow-md"
+            >
+              See your pattern →
+            </a>
+            <p className="mt-3 text-sm text-inkFaint">
+              18 questions · about 2 minutes · free, no sign-up
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Narrative body */}
       <section className="px-5 py-14">
         <div className="mx-auto max-w-read">
@@ -142,12 +181,11 @@ export default function Home() {
             </p>
           </div>
 
-          <blockquote
-            data-reveal
-            className="my-10 border-l-[3px] border-clay pl-5 text-2xl font-semibold leading-snug text-ink sm:text-[1.7rem]"
-          >
-            And somewhere in there, a better question shows up — not “what are they thinking?” but “what’s the pattern between us?”
-          </blockquote>
+          {/* TRIMMED (to hold page length after adding #pattern above):
+              the blockquote here — "not 'what are they thinking?' but 'what's
+              the pattern between us?'" — is now said louder, and ~3,000px
+              earlier, by the h2 of the #pattern section. Good line; it was
+              landing second. */}
 
           {/* Visual break — clarity emerging from confusion */}
           <div data-reveal className="my-12">
@@ -172,20 +210,12 @@ export default function Home() {
             And once you can see the pattern, you can work with it — together — instead of guessing your way through.
           </blockquote>
 
-          <div data-reveal className="space-y-5 text-lg leading-relaxed text-inkSoft">
-            <p>
-              Steady isn&apos;t here to tell you what they&apos;re thinking. It&apos;s here to help you see the pattern, understand your own side of it, and figure out what you both actually need.
-            </p>
-          </div>
-
-          <div data-reveal className="mt-8">
-            <p className="text-xl font-bold text-ink">
-              No mind-reading. No relationship hacks. No false hope.
-            </p>
-            <p className="mt-1 font-hand text-3xl text-clayDeep">
-              Recognize the pattern. Choose what happens next.
-            </p>
-          </div>
+          {/* TRIMMED (to hold page length after adding #pattern above):
+              the paragraph here ("Steady isn't here to tell you what they're
+              thinking…") restated the closing line of #pattern almost word for
+              word. And the trust triad + "Recognize the pattern" line below it
+              were a straight duplicate of the hero — the same two lines were
+              appearing twice on one page. */}
         </div>
       </section>
 
@@ -318,6 +348,7 @@ export default function Home() {
 
       <Footer />
       <RevealScript />
+      <StickyQuizBar />
     </div>
   );
 }

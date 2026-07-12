@@ -156,7 +156,20 @@ function Wordmark({ size = "text-lg" }: { size?: string }) {
   );
 }
 
-export function SiteHeader({ joinHref = "#join" }: { joinHref?: string }) {
+/* The header is `sticky top-0`, so on a phone its CTA is the ONLY persistent
+   action across a multi-screen page. On the homepage that slot now points at the
+   quiz (what we give) rather than the waitlist (what we ask for). /quiz and
+   /result keep the waitlist default — there the quiz is already underway or
+   done, so the ask has been earned. */
+export function SiteHeader({
+  joinHref = "#join",
+  ctaHref,
+  ctaLabel = "Join Waitlist",
+}: {
+  joinHref?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+}) {
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
@@ -164,10 +177,10 @@ export function SiteHeader({ joinHref = "#join" }: { joinHref?: string }) {
           <Wordmark />
         </a>
         <a
-          href={joinHref}
+          href={ctaHref ?? joinHref}
           className="rounded-full bg-ink px-4 py-2 text-sm font-bold text-cream transition-colors hover:bg-clayDeep"
         >
-          Join Waitlist
+          {ctaLabel}
         </a>
       </div>
     </header>
