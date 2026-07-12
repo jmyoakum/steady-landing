@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { track } from "../analytics";
 
 function ShareIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -21,8 +22,11 @@ function ShareIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-/** Shared share/copy behaviour for every share affordance on the page. */
-function useShare(name: string, snapshot: string) {
+/** Shared share/copy behaviour for every share affordance on the page.
+    `surface` distinguishes the hero button from the module from the mobile FAB —
+    without it we'd know shares happened but not which affordance earned them,
+    and the hero button is the one we're deliberately protecting. */
+function useShare(name: string, snapshot: string, surface: string, dyn?: string) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -35,7 +39,13 @@ function useShare(name: string, snapshot: string) {
     const url = typeof window !== "undefined" ? window.location.href : "https://www.staysteady.io";
     const text = `We got ${name} — ${snapshot} What's your dynamic?`;
     const nav = typeof navigator !== "undefined" ? (navigator as Navigator) : undefined;
+
+    /* Fire on intent, not outcome. The native sheet gives us no callback telling
+       us whether the user actually sent it, so "shared" here honestly means
+       "opened the share sheet". Naming the method keeps that distinction visible
+       in the data rather than hiding it. */
     if (nav && typeof nav.share === "function") {
+      track("share_clicked", { surface, method: "native", dyn: dyn ?? null });
       try {
         await nav.share({ title: `Our dynamic: ${name}`, text, url });
         return;
@@ -45,28 +55,38 @@ function useShare(name: string, snapshot: string) {
     }
     try {
       await navigator.clipboard.writeText(url);
+      track("share_clicked", { surface, method: "clipboard", dyn: dyn ?? null });
       setCopied(true);
     } catch {
       /* clipboard blocked — nothing else to do */
     }
-  }, [name, snapshot]);
+  }, [name, snapshot, surface, dyn]);
 
   const copyLink = useCallback(async () => {
     const url = typeof window !== "undefined" ? window.location.href : "https://www.staysteady.io";
     try {
       await navigator.clipboard.writeText(url);
+      track("share_clicked", { surface, method: "copy_link", dyn: dyn ?? null });
       setCopied(true);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [surface, dyn]);
 
   return { share, copyLink, copied };
 }
 
 /** Primary CTA in the hero — above the fold. */
-export function ShareButton({ name, snapshot }: { name: string; snapshot: string }) {
-  const { share, copied } = useShare(name, snapshot);
+export function ShareButton({
+  name,
+  snapshot,
+  dyn,
+}: {
+  name: string;
+  snapshot: string;
+  dyn?: string;
+}) {
+  const { share, copied } = useShare(name, snapshot, "hero", dyn);
   return (
     <div className="flex flex-col items-center gap-2">
       <button
@@ -92,12 +112,14 @@ export function ShareRow({
   name,
   snapshot,
   imageUrl,
+  dyn,
 }: {
   name: string;
   snapshot: string;
   imageUrl: string;
+  dyn?: string;
 }) {
-  const { share, copyLink, copied } = useShare(name, snapshot);
+  const { share, copyLink, copied } = useShare(name, snapshot, "module", dyn);
   const base =
     "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-cream px-5 py-3 text-sm font-bold text-inkSoft transition-colors hover:border-clay hover:text-clayDeep";
   return (
@@ -110,7 +132,14 @@ export function ShareRow({
         Share
       </button>
       <div className="flex flex-wrap gap-2.5">
-        <a href={imageUrl} download="steady-dynamic.png" className={base}>
+        <a
+          href={imageUrl}
+          download="steady-dynamic.png"
+          className={base}
+          onClick={() =>
+            track("share_clicked", { surface: "module", method: "download_image", dyn: dyn ?? null })
+          }
+        >
           Download image
         </a>
         <button onClick={copyLink} className={base}>
@@ -122,8 +151,16 @@ export function ShareRow({
 }
 
 /** Mobile floating share button — appears once the hero scrolls away. */
-export function ShareFab({ name, snapshot }: { name: string; snapshot: string }) {
-  const { share } = useShare(name, snapshot);
+export function ShareFab({
+  name,
+  snapshot,
+  dyn,
+}: {
+  name: string;
+  snapshot: string;
+  dyn?: string;
+}) {
+  const { share } = useShare(name, snapshot, "fab", dyn);
   const [show, setShow] = useState(false);
 
   useEffect(() => {

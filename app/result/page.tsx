@@ -10,6 +10,7 @@ import {
 } from "../data";
 import { resultContent } from "./content";
 import { ShareButton, ShareRow, ShareFab } from "./ShareControls";
+import { ResultAnalytics } from "../analytics";
 
 const SITE = "https://www.staysteady.io";
 const OG_V = "2"; // bump on any share-card change
@@ -32,7 +33,11 @@ function read(searchParams: SP) {
   const you2 = isYouStyle(y2) && y2 !== you ? y2 : undefined;
   const dyn2 = isDynamicSlug(d2) && d2 !== dyn ? d2 : undefined;
 
-  return { you, them, dyn, you2, dyn2 };
+  /* conf is read for ANALYTICS ONLY. It is deliberately never rendered — no
+     confidence percentages appear anywhere on this page, per the product call. */
+  const conf = one(searchParams.conf);
+
+  return { you, them, dyn, you2, dyn2, conf };
 }
 
 export function generateMetadata({ searchParams }: { searchParams: SP }): Metadata {
@@ -82,6 +87,32 @@ function Kicker({
   );
 }
 
+/* One beat of the bridge. Numbered, so it reads as a sequence rather than a list
+   of features — the point is that these three things happen in order, to one moment. */
+function BridgeStep({
+  n,
+  name,
+  tone,
+  children,
+}: {
+  n: string;
+  name: string;
+  tone: keyof typeof KICKER_TONE;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-4">
+      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-cream">
+        {n}
+      </span>
+      <div>
+        <p className={`text-lg font-extrabold ${KICKER_TONE[tone]}`}>{name}</p>
+        <p className="mt-1 leading-relaxed text-inkSoft">{children}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ResultPage({ searchParams }: { searchParams: SP }) {
   const r = read(searchParams);
 
@@ -100,6 +131,7 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
           >
             Take the quiz →
           </a>
+          <p className="mt-3 text-sm text-inkFaint">Free. No sign-up.</p>
         </div>
         <Footer />
       </div>
@@ -124,6 +156,17 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
 
   return (
     <div className="relative z-[2]">
+      {/* Client island: this page is a server component, so every event that needs
+          the browser (result_viewed, result_scroll_depth) lives in here. */}
+      <ResultAnalytics
+        dyn={r.dyn}
+        dyn2={r.dyn2}
+        you={r.you}
+        you2={r.you2}
+        them={r.them}
+        conf={r.conf}
+      />
+
       <SiteHeader joinHref="#join" />
 
       {/* 1 · The reveal */}
@@ -146,7 +189,7 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-4 sm:mt-9 sm:flex-row sm:justify-center sm:gap-7">
-            <ShareButton name={c.name} snapshot={c.snapshot} />
+            <ShareButton name={c.name} snapshot={c.snapshot} dyn={r.dyn} />
             <a
               href="#breakdown"
               className="text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
@@ -155,7 +198,9 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
             </a>
           </div>
 
-          <p className="mt-6 text-[13px] text-inkFaint">Based on your 2-minute quiz</p>
+          <p className="mt-6 text-[13px] text-inkFaint">
+            Based on your 2-minute quiz · free, no sign-up
+          </p>
         </div>
       </section>
 
@@ -172,19 +217,13 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
           </div>
 
           {/* Also in the mix — the closing beat of this section, not a new one.
-              It lands only after the primary dynamic has been fully argued, and its
-              name sits at text-xl: below the archetype h2s in section 3 and far below
-              the hero, so it cannot read as a second headline. Fires for roughly half
-              of all results; when dyn2 is absent this section renders exactly as
-              before. Same left-clay-rule treatment as "What tends to help" (§5), so
-              it reads as an established page element, not a new component. */}
+              Its name sits one step below the archetype h2s in section 3 at every
+              breakpoint (18/20 vs 20/24), so it cannot read as a second headline.
+              Fires for roughly half of all results; absent, this section renders
+              exactly as before. */}
           {c2 && (
             <div className="mt-10 rounded-2xl border-l-[3px] border-clay bg-paper p-5 shadow-sm sm:mt-11 sm:p-6">
               <Kicker>Also in the mix</Kicker>
-              {/* text-lg on mobile, not text-xl: the archetype h2s in §3 step DOWN to
-                  text-xl (20px) on small screens, so a fixed text-xl here would sit at
-                  exactly their size and flatten the hierarchy on the screen that matters
-                  most. One step below them at each breakpoint: 18/20 vs their 20/24. */}
               <p className="mt-2 text-lg font-extrabold leading-snug text-ink sm:text-xl">
                 {c2.name}
               </p>
@@ -267,7 +306,83 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
         </div>
       </section>
 
-      {/* 6 · Talk about it together */}
+      {/* ─── 6 · THE BRIDGE ─────────────────────────────────────────────
+          Lands right after "what tends to help", which is the exact point
+          where the reader is silently asking "okay — so what do I actually
+          DO?". Until now that question was answered with a share button.
+
+          It takes THEIR dynamic and walks one ordinary moment through the
+          three things the app does, so Signal / Reach / Steady stops being an
+          abstract framework and becomes the obvious next sentence. */}
+      <section className="px-5 pb-14 sm:pb-16">
+        <div data-reveal className="mx-auto max-w-read">
+          <Kicker tone="clayDeep">When it happens again</Kicker>
+          <h2 className="mt-3 text-[1.75rem] font-extrabold leading-tight text-ink sm:text-[2rem]">
+            It&apos;ll be a Tuesday. It always is.
+          </h2>
+
+          {/* The moment — the trigger, in their dynamic's own terms. */}
+          <div className="mt-6 rounded-2xl bg-paperDeep px-5 py-5 sm:px-6">
+            <p className="font-hand text-[1.35rem] leading-snug text-clayDeep sm:text-2xl">
+              {c.tuesday.moment}
+            </p>
+          </div>
+
+          <p className="mt-6 text-[1.0625rem] leading-relaxed text-inkSoft sm:text-lg">
+            You know the pattern now. Knowing it and catching it in the moment are two
+            different things — and the moment is where it actually counts. Here&apos;s what
+            Steady does with this one.
+          </p>
+
+          <div className="mt-7 space-y-6">
+            <BridgeStep n="1" name="Signal" tone="clayDeep">
+              {c.tuesday.signal}
+            </BridgeStep>
+            <BridgeStep n="2" name="Reach" tone="lavender">
+              {c.tuesday.reach}
+            </BridgeStep>
+            <BridgeStep n="3" name="Steady" tone="sage">
+              {c.tuesday.steady}
+            </BridgeStep>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 7 · APP CTA — directly below the bridge ────────────────────
+          This is now the ONLY email capture on the page. There used to be two
+          (a "Save your result" form and this one) 458px apart, feeding the same
+          list — a choice between two doors into the same room. The weaker offer
+          is gone: "save your result" was offering to email someone a thing they
+          were already looking at.
+
+          data-app-cta makes this the app-CTA surface for analytics. There's no
+          App Store link yet, so app_cta_clicked measures intent on the beta band;
+          give the real store link data-app-cta too when it ships. */}
+      <section id="join" className="px-5 pb-16 sm:pb-20">
+        <div
+          data-reveal
+          data-app-cta="result_app_band"
+          data-dyn={r.dyn}
+          className="mx-auto max-w-3xl rounded-3xl bg-ink px-6 py-12 text-center text-cream sm:px-12 sm:py-14"
+        >
+          <h2 className="text-[1.75rem] font-extrabold leading-tight sm:text-4xl">
+            Steady is built for exactly this.
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-cream/80">
+            Catch {c.name} in the moment, figure out what to say, and watch it change over
+            time. We&apos;ll send you your result to keep — plus the deeper read on each of
+            you when the beta opens.
+          </p>
+          <div className="mx-auto mt-7 max-w-md">
+            <WaitlistForm cta="Join the beta" tone="dark" location="result_app_band" dyn={r.dyn} />
+            <p className="mt-2.5 text-sm text-cream/60">
+              Be first in when the beta opens — no pressure, no noise. Unsubscribe anytime.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 8 · Talk about it together */}
       <section className="px-5 pb-16 sm:pb-24">
         <div
           data-reveal
@@ -283,7 +398,11 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
         </div>
       </section>
 
-      {/* 7 · Share your dynamic */}
+      {/* 9 · Share your dynamic — now BELOW the ask.
+             The hero share button is untouched, so the share loop (our only organic
+             distribution) is intact. What moved is the share MODULE, which used to
+             sit between the result and every ask — the loudest thing on the page was
+             a button that sent people away before we'd asked them for anything. */}
       <section className="bg-paper px-5 py-14 sm:py-20">
         <div className="mx-auto max-w-3xl">
           <p data-reveal className="text-center font-hand text-[1.75rem] text-clayDeep sm:text-3xl">
@@ -313,66 +432,27 @@ export default function ResultPage({ searchParams }: { searchParams: SP }) {
             </div>
 
             <div className="sm:w-52">
-              <ShareRow name={c.name} snapshot={c.snapshot} imageUrl={imageUrl} />
+              <ShareRow name={c.name} snapshot={c.snapshot} imageUrl={imageUrl} dyn={r.dyn} />
               <p className="mt-3 text-[13px] leading-relaxed text-inkFaint">
                 Most people send it straight to the person it&apos;s about.
               </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 8 · Save + deeper read */}
-      <section className="px-5 py-14 sm:py-20">
-        <div data-reveal className="mx-auto max-w-read text-center">
-          <h2 className="text-[1.75rem] font-extrabold leading-tight text-ink sm:text-4xl">
-            Save your result.
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-inkSoft sm:text-lg">
-            We&apos;ll send you {c.name} to keep — plus the deeper read on each of you when
-            it&apos;s ready.
-          </p>
-          <div className="mx-auto mt-6 max-w-md">
-            <WaitlistForm cta="Send it to me" />
-            <p className="mt-2.5 text-sm text-inkFaint">
-              Only your result and the Steady beta. Unsubscribe anytime.
-            </p>
+          <div className="mt-10 text-center">
+            <a
+              href="/quiz"
+              className="text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
+            >
+              Retake the quiz →
+            </a>
+            <p className="mt-1.5 text-sm text-inkFaint">Free. No sign-up.</p>
           </div>
-        </div>
-      </section>
-
-      {/* 9 · Steady is built for this */}
-      <section id="join" className="px-5 pb-16 sm:pb-20">
-        <div
-          data-reveal
-          className="mx-auto max-w-3xl rounded-3xl bg-ink px-6 py-12 text-center text-cream sm:px-12 sm:py-14"
-        >
-          <h2 className="text-[1.75rem] font-extrabold leading-tight sm:text-4xl">
-            Steady is built for exactly this.
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-cream/80">
-            Catch the pattern in the moment, figure out what to say, and watch it change over time.
-          </p>
-          <div className="mx-auto mt-7 max-w-md">
-            <WaitlistForm cta="Join the beta" tone="dark" />
-            <p className="mt-2.5 text-sm text-cream/60">
-              Be first in when the beta opens — no pressure, no noise.
-            </p>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-6 max-w-3xl text-center">
-          <a
-            href="/quiz"
-            className="text-base font-semibold text-clayDeep underline-offset-4 hover:underline"
-          >
-            Retake the quiz →
-          </a>
         </div>
       </section>
 
       <Footer />
-      <ShareFab name={c.name} snapshot={c.snapshot} />
+      <ShareFab name={c.name} snapshot={c.snapshot} dyn={r.dyn} />
       <RevealScript />
     </div>
   );

@@ -16,6 +16,17 @@ export type ResultContent = {
   helps: string[];
   question: string;
   questionNote: string;
+  /* The bridge ("What this looks like on a Tuesday"). The moment this pattern
+     actually shows up, and what each of the three Steady moves does with it.
+     NOTE: this is new copy. The existing fields carry no usable "moment" for
+     three of the six dynamics, and no quotable line for three of them either —
+     deriving it would have produced three good sections and three weak ones. */
+  tuesday: {
+    moment: string;   // the ordinary trigger
+    signal: string;   // get it out of your head
+    reach: string;    // figure out what to say
+    steady: string;   // watch it change over time
+  };
 };
 
 export const resultContent: Record<DynamicSlug, ResultContent> = {
@@ -48,6 +59,16 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "When the distance shows up, what does each of us actually need in that moment — closeness, or a little room — and how could we let the other know?",
     questionNote:
       "Ask it when things are calm, not mid-loop. And answer it for yourself, too — half of this pattern is never quite saying what you need before the reaching or the retreating says it for you.",
+    tuesday: {
+      moment:
+        "Their reply is slower than usual. Nothing's happened. But you can already feel the distance, and your thumb is already moving.",
+      signal:
+        "Before the reaching starts, get the moment down: what actually happened, what you noticed, what you felt. Not the story you're already building on top of it — the facts underneath it.",
+      reach:
+        "Then find the true thing to say instead of the fast one. Usually it's some version of: “I think I'm reaching and you're needing room right now.” Naming the loop mid-loop is the whole move.",
+      steady:
+        "And the fourth time you catch it, the loop stops being a mystery and starts being a pattern — one you can both finally see coming.",
+    },
   },
 
   "quiet-drift": {
@@ -79,6 +100,16 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "What's one small thing you've let slide lately because it didn't feel worth a whole conversation?",
     questionNote:
       "Ask it with real curiosity — and answer it yourself, too. It's a small door. But in this pattern, small doors are the ones that open.",
+    tuesday: {
+      moment:
+        "Something small comes up. You decide it isn't worth a whole conversation. The moment passes. It's the fortieth time this year it's passed.",
+      signal:
+        "Write the small thing down instead of filing it away. Not to make it a thing — just so it exists somewhere other than under the surface.",
+      reach:
+        "Then work out how to actually say it. Low stakes, on purpose. You're not solving anything — you're proving the surface is breakable.",
+      steady:
+        "Over a few weeks you see the shape of everything you've been swallowing. That's usually the moment the drift stops.",
+    },
   },
 
   "direct-process": {
@@ -110,6 +141,16 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "When something hard comes up, how much time does each of us really need before we can talk about it well — and how do we make sure “later” actually comes?",
     questionNote:
       "Ask it on a calm day, not in the middle of one of these. The goal isn't to agree on a single speed — it's to build a version of “we'll finish this later” that both of you can actually relax into.",
+    tuesday: {
+      moment:
+        "You want to sort it out tonight. They've gone quiet. And you can feel yourself starting to push.",
+      signal:
+        "Get the thing out of your head and onto the page first. It's the pressure valve — you get to say it all, immediately, without saying it *at* them before they're ready.",
+      reach:
+        "Then split the raising from the resolving: “this is bothering me and I want to talk about it — can we get into it after dinner?” The one rule that makes it work: later has to actually come.",
+      steady:
+        "Over time you see how long they actually need — and that later really does come. That's what makes the waiting survivable.",
+    },
   },
 
   "reassure-space": {
@@ -141,6 +182,16 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "On an ordinary, nothing's-wrong evening — what helps each of us feel close, and what helps each of us feel like ourselves again?",
     questionNote:
       "Ask it as a genuine question, not a negotiation. You're trying to learn the two different things that make each of you feel okay, so you can stop accidentally offering the other person the opposite.",
+    tuesday: {
+      moment:
+        "It's been a perfectly good day. You want to come close. They want an hour to themselves. Nobody has done anything wrong.",
+      signal:
+        "Notice what you're actually reaching for before you reach. Reassurance? Contact? Or just the end of a low-level hum you can't name?",
+      reach:
+        "Then ask for it plainly, instead of extracting it sideways. Given freely it sticks — “we're good, I just need to zone out for a bit” lands. Pulled out under strain, it never quite counts.",
+      steady:
+        "After a month you can see it clearly: they always come back. Once that's a pattern instead of a hope, the hour stops costing you anything.",
+    },
   },
 
   "clarify-flex": {
@@ -172,6 +223,16 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "What's one thing about us you'd feel steadier if we just said out loud — and one thing you'd rather we let keep taking shape?",
     questionNote:
       "Ask it with real curiosity, and answer both halves yourself too. The point isn't to prove that naming things is better, or that letting them breathe is — it's to find the line, together.",
+    tuesday: {
+      moment:
+        "They said something that could have meant anything. And now the open question is loud, and you're building a case out of nothing.",
+      signal:
+        "Separate what actually happened from what you've decided it means. Most of the ache in this one lives entirely in the gap between those two.",
+      reach:
+        "Then name the one thing you genuinely need said out loud — not everything, one thing. Naming the few gives them room to let the rest keep taking shape.",
+      steady:
+        "Over time you find your own line: what you need made clear, and what you're honestly fine leaving open. That line is the whole answer.",
+    },
   },
 
   "build-wander": {
@@ -203,5 +264,15 @@ export const resultContent: Record<DynamicSlug, ResultContent> = {
       "What makes you feel most connected to me — building toward what's next, or being fully in what we already have?",
     questionNote:
       "Ask it with real curiosity, and answer it for yourself too. You're trying to learn where each of you naturally feels the love — so you can start offering the other a little more of theirs.",
+    tuesday: {
+      moment:
+        "You bring up next summer. They change the subject to tonight. And you feel it land as: they don't see a future here.",
+      signal:
+        "Get the moment down before the story does. What was said, what you heard, and the gap between them — which is usually where all the hurt is.",
+      reach:
+        "Then say what the planning actually means to you, rather than just planning harder. “Talking about what's next is how I feel close to you” is a completely different sentence from “why won't you commit.”",
+      steady:
+        "Over a few months you'll see it: they never wanted less of this. They just love it from inside the present, not from out on the horizon.",
+    },
   },
 };
