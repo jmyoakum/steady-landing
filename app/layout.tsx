@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Caveat } from "next/font/google";
+import { Suspense } from "react";
+import { AnalyticsProvider } from "./analytics";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -48,6 +50,12 @@ export default function RootLayout({
     <html lang="en" className={`${jakarta.variable} ${caveat.variable}`}>
       <body className="bg-cream font-body text-[1.0625rem] leading-relaxed text-ink antialiased">
         {children}
+        {/* AnalyticsProvider calls usePathname(), which suspends during
+            prerender. Without this boundary the whole page would opt into
+            client rendering. It renders nothing, so the fallback is null. */}
+        <Suspense fallback={null}>
+          <AnalyticsProvider />
+        </Suspense>
       </body>
     </html>
   );

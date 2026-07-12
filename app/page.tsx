@@ -46,15 +46,12 @@ export default function Home() {
             confidence.
           </p>
 
-          <div className="mt-6 max-w-md">
-            <WaitlistForm cta="Join the Waitlist" />
-            <p className="mt-2.5 text-sm text-inkFaint">
-              Early access, no spam, leave whenever.
-            </p>
-          </div>
-
-          {/* Quiz CTA — prominent, above the fold */}
-          <div className="mt-6 rounded-3xl border border-clay/30 bg-paper px-6 py-7 text-center shadow-sm sm:px-10">
+          {/* THE QUIZ IS THE PRIMARY CTA, and it now sits above the email form.
+              It used to be the other way round: on a phone a stranger saw an email
+              box at 624px and the quiz CTA at 847px — below the fold. We were asking
+              for an address eleven seconds in, before giving anything. The quiz IS
+              the value; the waitlist is the ask. Give first. */}
+          <div className="mt-7 rounded-3xl border border-clay/30 bg-paper px-6 py-7 text-center shadow-sm sm:px-10">
             <p className="font-hand text-3xl text-clayDeep">
               Discover your relationship dynamic.
             </p>
@@ -65,7 +62,19 @@ export default function Home() {
               Take the Quiz →
             </a>
             <p className="mt-3 text-sm text-inkFaint">
-              It only takes a few minutes · no sign-up to see your result
+              18 quick questions · about 2 minutes
+            </p>
+            <p className="mt-1 text-sm font-bold text-clayDeep">Free. No sign-up.</p>
+          </div>
+
+          {/* The email ask, demoted to a secondary action below the quiz. */}
+          <div className="mt-7 max-w-md">
+            <p className="mb-2 text-sm font-semibold text-inkSoft">
+              Or join the beta waitlist:
+            </p>
+            <WaitlistForm cta="Join the Waitlist" location="home_hero" />
+            <p className="mt-2.5 text-sm text-inkFaint">
+              Early access, no spam, leave whenever.
             </p>
           </div>
 
@@ -287,6 +296,7 @@ export default function Home() {
       <section id="join" className="px-5 pb-20">
         <div
           data-reveal
+          data-app-cta="home_app_band"
           className="mx-auto max-w-3xl rounded-3xl bg-ink px-6 py-12 text-center text-cream sm:px-12"
         >
           <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
@@ -297,7 +307,7 @@ export default function Home() {
             the first in — no pressure, no noise.
           </p>
           <div className="mx-auto mt-7 max-w-md">
-            <WaitlistForm cta="Join the Waitlist" tone="dark" />
+            <WaitlistForm cta="Join the Waitlist" tone="dark" location="home_footer" />
             <p className="mt-2.5 text-sm text-cream/60">
               We&apos;ll only email you about the Steady beta. Unsubscribe
               anytime.

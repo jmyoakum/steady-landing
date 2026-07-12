@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "./analytics";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -30,18 +31,32 @@ export function RevealScript() {
   return null;
 }
 
-/* Email capture — wired to MailerLite via /api/subscribe. */
+/* Email capture — wired to MailerLite via /api/subscribe.
+   `location` is what makes waitlist_submitted useful: without it we'd know
+   people signed up but not WHERE, which is exactly the question we're trying
+   to answer (does the ask work better near the emotional peak?). */
 export function WaitlistForm({
   cta,
   tone = "light",
+  location = "unknown",
+  dyn,
 }: {
   cta: string;
   tone?: "light" | "dark";
+  location?: string;
+  dyn?: string;
 }) {
   const dark = tone === "dark";
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+
+  function scrollDepth() {
+    const el = document.documentElement;
+    const scrollable = el.scrollHeight - window.innerHeight;
+    if (scrollable <= 0) return 100;
+    return Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,10 +65,12 @@ export function WaitlistForm({
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
       setStatus("error");
       setMessage("That email looks off — mind checking it?");
+      track("waitlist_invalid_email", { location });
       return;
     }
     setStatus("loading");
     setMessage("");
+    const depth = scrollDepth();
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
@@ -63,9 +80,18 @@ export function WaitlistForm({
       if (!res.ok) throw new Error("bad");
       setStatus("success");
       setMessage("You're on the list. We'll be in touch soon. ✦");
+      /* Only fire on genuine success. Counting attempts as conversions would
+         quietly inflate the one number we most need to trust. */
+      track("waitlist_submitted", {
+        location,
+        dyn: dyn ?? null,
+        scroll_depth_at_submit: depth,
+        path: window.location.pathname,
+      });
     } catch {
       setStatus("error");
       setMessage("Something hiccuped — try again in a moment?");
+      track("waitlist_failed", { location, dyn: dyn ?? null });
     }
   }
 
