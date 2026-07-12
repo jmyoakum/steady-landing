@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SiteHeader, Footer } from "../shared";
 import { quiz, partMeta, computeResult } from "../data";
+import { track, trackBeacon } from "../analytics";
 
 /** Fisher–Yates — used once per session, then frozen. */
 function shuffled(n: number): number[] {
@@ -37,9 +38,6 @@ export default function QuizPage() {
      The quiz has no "selected" state — answering advances immediately. But the
      physical cursor stays where it was, so on the next question the button that
      happens to sit under it picks up :hover styling and *looks* pre-selected.
-     Because the option block shifts vertically between questions (the part-intro
-     card, wrapped question text), it lands on a button sometimes and in a gap
-     other times — which is why it only happened on some questions.
      Fix: hover styles are suppressed until the pointer actually moves again. */
   const [armed, setArmed] = useState(true);
 
@@ -57,6 +55,70 @@ export default function QuizPage() {
     };
   }, [armed]);
 
+  /* ── Analytics state ──────────────────────────────────────────
+     Refs, not state: these are read inside event handlers and inside the
+     pagehide listener, and must never trigger a re-render. */
+  const startedAt = useRef(0); // ms at quiz_started
+  const questionAt = useRef(0); // ms the current question rendered
+  const completed = useRef(false); // suppresses quiz_abandoned on the way out
+  const part2Fired = useRef(false);
+  const stepRef = useRef(0); // pagehide handler needs the *current* step
+  stepRef.current = step;
+
+  /* quiz_abandoned — the single most valuable event here. It's what tells us
+     WHERE the quiz dies. Fires on pagehide, which (unlike beforeunload) is
+     reliable on mobile Safari. sendBeacon or the request is killed with the page. */
+  useEffect(() => {
+    if (!started) return;
+    function bail() {
+      if (completed.current || document.visibilityState !== "hidden") return;
+      completed.current = true; // once only
+      trackBeacon("quiz_abandoned", {
+        last_step: stepRef.current + 1,
+        last_question_id: quiz[stepRef.current]?.id ?? null,
+        part: quiz[stepRef.current]?.part ?? null,
+        answered: stepRef.current,
+        total_questions: quiz.length,
+        ms_elapsed: Date.now() - startedAt.current,
+      });
+    }
+    window.addEventListener("pagehide", bail);
+    document.addEventListener("visibilitychange", bail);
+    return () => {
+      window.removeEventListener("pagehide", bail);
+      document.removeEventListener("visibilitychange", bail);
+    };
+  }, [started]);
+
+  /* quiz_part2_reached — Part 2 is where the quiz stops asking about YOU and
+     starts asking you to characterise your PARTNER. That's the hardest ask in
+     the funnel and my prime suspect for the drop-off cliff. Measure it directly. */
+  useEffect(() => {
+    if (!started || part2Fired.current) return;
+    if (quiz[step]?.part !== 2) return;
+    part2Fired.current = true;
+    track("quiz_part2_reached", {
+      step: step + 1,
+      question_id: quiz[step].id,
+      ms_elapsed: Date.now() - startedAt.current,
+    });
+  }, [started, step]);
+
+  /* Reset the per-question timer whenever the question changes. */
+  useEffect(() => {
+    questionAt.current = Date.now();
+  }, [step, started]);
+
+  function begin() {
+    startedAt.current = Date.now();
+    questionAt.current = Date.now();
+    track("quiz_started", {
+      referrer: document.referrer || "direct",
+      total_questions: quiz.length,
+    });
+    setStarted(true);
+  }
+
   /* Same stationary-cursor geometry means a fast double-click could land on the
      NEXT question's button and answer it unseen. Ignore a second fire <250ms. */
   const lastChoiceAt = useRef(0);
@@ -66,9 +128,40 @@ export default function QuizPage() {
     if (now - lastChoiceAt.current < 250) return;
     lastChoiceAt.current = now;
 
+    const q = quiz[step];
+    track("quiz_question_answered", {
+      question_id: q.id,
+      step: step + 1,
+      part: q.part,
+      kind: q.kind,
+      value: v,
+      ms_on_question: now - questionAt.current,
+    });
+
     const next = [...picks, v];
     if (step + 1 >= quiz.length) {
       const r = computeResult(next);
+      completed.current = true; // don't also fire quiz_abandoned on navigation
+
+      track("quiz_completed", {
+        total_ms: now - startedAt.current,
+        you: r.you,
+        you2: r.you2 ?? null,
+        them: r.them,
+        dyn: r.dyn,
+        dyn2: r.dyn2 ?? null,
+        conf: r.conf,
+      });
+
+      /* Lets /result tell a real quiz-taker apart from someone opening a shared
+         link. Averaging those two together would make every result-page metric
+         meaningless. */
+      try {
+        sessionStorage.setItem("steady_quiz_done", "1");
+      } catch {
+        /* private mode — entry just reads as shared_link, which is acceptable */
+      }
+
       const p = new URLSearchParams({
         you: r.you,
         them: r.them,
@@ -90,6 +183,7 @@ export default function QuizPage() {
       setStarted(false);
       return;
     }
+    track("quiz_back_pressed", { step: step + 1, question_id: quiz[step]?.id });
     setPicks(picks.slice(0, -1));
     setStep(step - 1);
     setArmed(false);
@@ -120,11 +214,17 @@ export default function QuizPage() {
                 What&apos;s the dynamic between you?
               </h1>
               <p className="mx-auto mt-5 max-w-md text-lg leading-relaxed text-inkSoft">
-                Two parts: how you tend to move, and what you notice in them. It only takes a few
-                minutes. No sign-up to see your result.
+                Two parts: how you tend to move, and what you notice in them.{" "}
+                {/* Say the real number. "A few minutes" primes people for 6–8
+                    questions; being shown "1 of 18" straight after the click is
+                    an expectation break at the worst possible moment. */}
+                <strong className="font-semibold text-ink">
+                  {quiz.length} quick questions, about two minutes.
+                </strong>{" "}
+                Free, and no sign-up to see your result.
               </p>
               <button
-                onClick={() => setStarted(true)}
+                onClick={begin}
                 className="mt-8 rounded-full bg-ink px-8 py-4 text-base font-bold text-cream shadow-sm transition-all hover:bg-clayDeep hover:shadow-md"
               >
                 Start the quiz →
